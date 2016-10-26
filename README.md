@@ -1,4 +1,6 @@
 # DTile Three Renderer
+[![Build Status](https://travis-ci.org/magnonellie/dtile-three-renderer.svg?branch=master)](https://travis-ci.org/magnonellie/dtile-three-renderer)
+
 dtile-three-renderer is a renderer made with [Three.js](https://threejs.org/)
 for rendering [dtile-tilemap](https://github.com/magnonellie/dtile-tilemap)
 tilemaps.

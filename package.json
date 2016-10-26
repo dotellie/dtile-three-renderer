@@ -1,0 +1,30 @@
+{
+  "name": "dtile-three-renderer",
+  "version": "0.1.0",
+  "description": "A threejs renderer for tilemaps.",
+  "main": "out/js/build.js",
+  "jsnext:main": "out/js/build.es6.js",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "npm run build -- -w | npm run serve",
+    "serve": "ws -p 8080 -d . | echo \"Demos available at http://localhost:8080/demo\n\"",
+    "lint": "eslint ./src ./test",
+    "test": "npm run lint"
+  },
+  "keywords": [
+    "tilemap",
+    "game"
+  ],
+  "author": "magnonellie",
+  "license": "MIT",
+  "devDependencies": {
+    "dtile-tilemap": "^0.2.1",
+    "eslint": "^3.8.1",
+    "rollup": "^0.36.3",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-watch": "^2.5.0"
+  },
+  "dependencies": {
+    "three": "git+https://github.com/mrdoob/three.js.git#dev"
+  }
+}

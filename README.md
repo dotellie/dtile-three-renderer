@@ -22,7 +22,7 @@ Any contribution, be it bugs, suggestions, code or whatever, is ***hugely*** app
 
 To set up your development environment, follow these steps:
 
-1. Clone the repo.
+1. Clone the repo with `git clone https://github.com/magnonellie/dtile-three-renderer.git`.
 2. Run `npm install`.
 3. Run `npm run dev` to start a local web-server. You should then be able to open `localhost:8080/demo` in your browser where you can try out your changes.
 4. Feel free to add stuff to `demo/index.html` so that it can be used as a full-featured demo!

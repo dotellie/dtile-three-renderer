@@ -1,8 +1,15 @@
 sudo: false
 language: node_js
 node_js:
-  - "6"
-
+- '6'
 script:
-  - "npm run build"
-  - "npm test"
+- npm run build
+- npm test
+deploy:
+  provider: npm
+  email: fagerberg.tobias@gmail.com
+  skip_cleanup: true
+  on:
+    branch: production
+  api_key:
+    secure: nqK65SLrb7QVQBw71g2NE0pCR8TC36Dgp45OumAZv5Q8B0DJIlAZ8vE/lNY7AvdThjpRBeO4W37fROUDJzXV9ejatUt8U5U9acLqwdqbuk790doIdkioueQTMdCZB5fBHbyhg0lPKqdCD59AFEM5K003ti585bcnQ5KoCpKKrRLBQBgmZRgJHohJGix7JWCDuxZHk/4IgocozdZa13dPw2ObAnU08Ylfgl11j99KlqgfXU+IlaLF6y0uC5ahK+e3vDIfNVHw0hAZ8RdRhbw0MZW2lKRI54XIlevSQrdq3rvLc9lMY+UTqFJuNSGtzGY1uub//mgqvud+dMeOEZeHLTJ7dZtm57lQhf+QvpoVZGFxPyse5rCX4IQgAxa+jK+58IJwl5ztSHC6X8Wc7f39SKIkY74fsZKDPJmJd20//4tPsM4vFFJ1VCS/x7lrxDA9ia0Qxm+T2YoC0gPMP6IPbftnD6EOgV8HYLYrtyfzNRZFEMIqZAcnydvwojCf8aJoWAF1bdCWZVwBr3f+Rg3JIPlrh1vivMrHl4e0ykrVLq1xYgEahwNvqxWAPvLdvx6HaD7G31J8xTO2QG+46XmgCNFdRW0kwHybZQG36AYN6k8R25MVwcB9jPhSJM5mKNGgKzRX5H9yZmN3ekmCrC7VKk67LMz5RXjkygE9UTnj0so=

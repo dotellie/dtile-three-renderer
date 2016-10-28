@@ -13,11 +13,12 @@ export class Renderer {
 		console.info("[dtile-three-renderer] Testing mode enabled; WebGL will not be used.");
 	}
 
-	constructor(canvas) {
+	constructor(canvas, alpha) {
 		this._canvas = canvas;
 		if (!testing) {
 			this.renderer = new WebGLRenderer({
-				canvas
+				canvas,
+				alpha
 			});
 		}
 		this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);

@@ -5,12 +5,21 @@ import { RenderTileset } from "./tileset";
 
 const CAMERA_UNIT = 100;
 
+let testing = false;
+
 export class Renderer {
+	static enableTesting() {
+		testing = true;
+		console.info("[dtile-three-renderer] Testing mode enabled; WebGL will not be used.");
+	}
+
 	constructor(canvas) {
 		this._canvas = canvas;
-		this.renderer = new WebGLRenderer({
-			canvas
-		});
+		if (!testing) {
+			this.renderer = new WebGLRenderer({
+				canvas
+			});
+		}
 		this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);
 		this.camera.position.z = CAMERA_UNIT;
 		this.scene = new Scene();
@@ -52,6 +61,7 @@ export class Renderer {
 	}
 
 	render() {
+		if (testing) return;
 		this.renderer.render(this.scene, this.camera);
 	}
 
@@ -92,7 +102,14 @@ export class Renderer {
 	}
 
 	_updateSize(width, height) {
-		this.renderer.setSize(width, height);
+		if (!testing) {
+			this.renderer.setSize(width, height);
+		} else {
+			this._canvas.style.width = width;
+			this._canvas.style.height = height;
+			this._canvas.width = width;
+			this._canvas.height = height;
+		}
 		this.camera.right = width / height * CAMERA_UNIT;
 	}
 }

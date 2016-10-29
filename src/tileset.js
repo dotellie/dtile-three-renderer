@@ -9,14 +9,30 @@ export class RenderTileset {
 	}
 
 	static load(tileset, renderer) {
-		return new Promise((resolve, reject) => {
-			const texture = new TextureLoader().load(tileset.path, () => {
-				texture.magFilter = texture.minFilter = NearestFilter;
-				resolve(new RenderTileset(tileset, texture, renderer));
-			}, undefined, e => {
-				reject(e);
+		if (tileset.type === "image") {
+			return new Promise((resolve, reject) => {
+				const texture = new TextureLoader().load(tileset.path, () => {
+					texture.magFilter = texture.minFilter = NearestFilter;
+					resolve(new RenderTileset(tileset, texture, renderer));
+				}, undefined, e => {
+					reject(e);
+				});
 			});
-		});
+		} else if (tileset.type === "test") {
+			return new Promise((resolve, reject) => {
+				const testTileset = generateTestImage(
+					25, 25,
+					renderer.map.tileWidth, renderer.map.tileHeight
+				);
+
+				const texture = new TextureLoader().load(testTileset, () => {
+					texture.magFilter = texture.minFilter = NearestFilter;
+					resolve(new RenderTileset(tileset, texture, renderer));
+				}, undefined, e => {
+					reject(e);
+				});
+			});
+		}
 	}
 
 	getTileUvs(id) {
@@ -47,4 +63,24 @@ function makeTrisFromQuad(quad) {
 		[quad[2], quad[0], quad[3]],
 		[quad[0], quad[1], quad[3]]
 	];
+}
+
+function generateTestImage(width, height, tileWidth, tileHeight) {
+	const canvas = document.createElement("canvas");
+	canvas.width = width * tileWidth;
+	canvas.height = height * tileHeight;
+	const context = canvas.getContext("2d");
+
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			context.fillStyle = "#" + ("000000" +
+				(Math.floor(Math.random() * 0xffffff))).substr(-6);
+			context.fillRect(
+				x * tileWidth, y * tileHeight,
+				(x + 1) * tileWidth, (y + 1) * tileHeight
+			);
+		}
+	}
+
+	return canvas.toDataURL();
 }

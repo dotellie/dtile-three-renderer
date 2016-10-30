@@ -3,7 +3,7 @@ import { WebGLRenderer, OrthographicCamera, Scene, Vector2 } from "three";
 import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 
-const CAMERA_UNIT = 100;
+const CAMERA_UNIT = 10;
 
 let testing = false;
 

@@ -28,6 +28,8 @@ export class Renderer {
 		this._layers = [];
 		this._tilesets = [];
 
+		this.outlineEnabled = false;
+
 		this.update();
 	}
 

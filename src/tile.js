@@ -1,13 +1,28 @@
-import { Mesh, PlaneGeometry, MeshBasicMaterial, DoubleSide, Vector2 } from "three";
+import {
+	Mesh, PlaneGeometry, MeshBasicMaterial, DoubleSide, Vector2, EdgesGeometry,
+	LineBasicMaterial, LineSegments
+} from "three";
 
 export class RenderTile extends Mesh {
 	constructor(x, y, tile, parentLayer, renderer) {
 		const geometry = new PlaneGeometry(renderer.map.tileWidth, renderer.map.tileHeight);
 		const material = new MeshBasicMaterial({
 			side: DoubleSide,
-			transparent: true
+			transparent: true,
+
+			// For the outline
+			polygonOffsetFactor: 1,
+			polygonOffsetUnits: 1
 		});
 		super(geometry, material);
+
+		const outlineGeometry = new EdgesGeometry(this.geometry);
+		const outlineMaterial = new LineBasicMaterial({
+			color: 0x000000,
+			linewidth: 2
+		});
+		this._outline = new LineSegments(outlineGeometry, outlineMaterial);
+		this.add(this._outline);
 
 		this._tilePosition = new Vector2(x, y);
 		this.position.set(x * renderer.map.tileWidth, y * renderer.map.tileHeight, 0);
@@ -57,6 +72,9 @@ export class RenderTile extends Mesh {
 		} else {
 			this.material.color.set(0xffffff);
 		}
+
+		this.material.polygonOffset = this._renderer.outlineEnabled;
+		this._outline.visible = this._renderer.outlineEnabled;
 
 		this._lastTile = this.tile.clone();
 	}

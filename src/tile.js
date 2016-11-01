@@ -15,6 +15,8 @@ export class RenderTile extends Mesh {
 		this._layer = parentLayer;
 		this._renderer = renderer;
 		this.tile = tile;
+
+		this.tint = false; // Color (0xffffff) to tint, false to "un-tint"
 	}
 
 	get tilePosition() {
@@ -49,6 +51,12 @@ export class RenderTile extends Mesh {
 		// TODO: Optimization.
 		this.geometry.faceVertexUvs[0] = tileset.getTileUvs(this.tile.tileId);
 		this.geometry.uvsNeedUpdate = true;
+
+		if (this.tint) {
+			this.material.color.set(this.tint);
+		} else {
+			this.material.color.set(0xffffff);
+		}
 
 		this._lastTile = this.tile.clone();
 	}

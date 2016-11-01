@@ -86,8 +86,8 @@
 					renderer.camera.zoom = Math.max(Math.min(75, newZoom), 0.01);
 				} else {
 					renderer.camera.position.add({
-						x: e.deltaX * -0.05,
-						y: e.deltaY * -0.05,
+						x: e.deltaX * 0.05,
+						y: e.deltaY * 0.05,
 						z: 0
 					});
 				}

@@ -104,6 +104,10 @@ export class Renderer {
 		return this._layers[layerId].raycastToTile(normalizedPosition, this.camera);
 	}
 
+	getTile(x, y, layerId) {
+		return this._layers[layerId].getTile(x, y);
+	}
+
 	_updateSize(width, height) {
 		if (!testing) {
 			this.renderer.setSize(width, height);

@@ -47,4 +47,8 @@ export class RenderLayer extends Object3D {
 			return intersection.object.tilePosition;
 		}
 	}
+
+	getTile(x, y) {
+		return this._tiles[x + y * this._renderer.map.width];
+	}
 }

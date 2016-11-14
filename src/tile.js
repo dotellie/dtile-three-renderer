@@ -16,6 +16,9 @@ export class RenderTile extends Mesh {
 		});
 		super(geometry, material);
 
+		this._overlayMesh = new Mesh(geometry, material.clone());
+		this.add(this._overlayMesh);
+
 		const outlineGeometry = new EdgesGeometry(this.geometry);
 		const outlineMaterial = new LineBasicMaterial({
 			color: 0x000000,
@@ -81,9 +84,11 @@ export class RenderTile extends Mesh {
 		}
 
 		if (this.tint) {
-			this.material.color.set(this.tint);
+			this._overlayMesh.material.visible = true;
+			this._overlayMesh.material.opacity = 0.5; // TODO: Make configurable.
+			this._overlayMesh.material.color.set(this.tint);
 		} else {
-			this.material.color.set(0xffffff);
+			this._overlayMesh.material.visible = false;
 		}
 
 		this.material.polygonOffset = this._renderer.outlineEnabled;

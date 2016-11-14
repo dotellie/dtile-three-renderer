@@ -61,11 +61,24 @@ export class RenderTile extends Mesh {
 		} else {
 			this.visible = true;
 		}
-		if (this.tile === this._lastTile) return;
 
-		// TODO: Optimization.
-		this.geometry.faceVertexUvs[0] = tileset.getTileUvs(this.tile.tileId);
-		this.geometry.uvsNeedUpdate = true;
+		if (!this._lastTile ||
+			this.tile.tileId !== this._lastTile.tileId ||
+			this.tile.tilesetId !== this._lastTile.tilesetId) {
+			// TODO: Optimization.
+
+			// This is a work-around for this bug: https://github.com/mrdoob/three.js/issues/7179
+			const newUvs = tileset.getTileUvs(this.tile.tileId);
+			for (let i = 0; i < this.geometry.faceVertexUvs[0].length; i++) {
+				for (let j = 0; j < this.geometry.faceVertexUvs[0][i].length; j++) {
+					const newUv = newUvs[i][j];
+					this.geometry.faceVertexUvs[0][i][j].set(newUv.x, newUv.y);
+				}
+			}
+			this.geometry.uvsNeedUpdate = true;
+
+			this._lastTile = this.tile.clone();
+		}
 
 		if (this.tint) {
 			this.material.color.set(this.tint);
@@ -75,7 +88,5 @@ export class RenderTile extends Mesh {
 
 		this.material.polygonOffset = this._renderer.outlineEnabled;
 		this._outline.visible = this._renderer.outlineEnabled;
-
-		this._lastTile = this.tile.clone();
 	}
 }

@@ -51,6 +51,8 @@ export class Renderer {
 				for (let layer of this._layers) {
 					layer.update();
 				}
+			} else if (toUpdate === "tilesets") {
+				this.loadTilesets();
 			} else {
 				console.error("Unknown update action: " + toUpdate);
 			}
@@ -70,9 +72,19 @@ export class Renderer {
 
 		this.map = map;
 
+		this.loadTilesets();
+
+		this._layers = map.layers.map(layer => {
+			const renderLayer = new RenderLayer(this, layer);
+			this.scene.add(renderLayer);
+			return renderLayer;
+		});
+	}
+
+	loadTilesets() {
 		this._tilesets = [];
 		for (let i = 0; i < this.map.tilesets.length; i++) {
-			RenderTileset.load(map.tilesets[i], this)
+			RenderTileset.load(this.map.tilesets[i], this)
 				.then(renderTileset => {
 					this._tilesets[i] = renderTileset;
 					this.update();
@@ -80,12 +92,6 @@ export class Renderer {
 					console.error("Something went wrong while loading a texture", e);
 				});
 		}
-
-		this._layers = map.layers.map(layer => {
-			const renderLayer = new RenderLayer(this, layer);
-			this.scene.add(renderLayer);
-			return renderLayer;
-		});
 	}
 
 	getTileset(id) {

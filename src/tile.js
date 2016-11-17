@@ -28,7 +28,11 @@ export class RenderTile extends Mesh {
 		this.add(this._outline);
 
 		this._tilePosition = new Vector2(x, y);
-		this.position.set(x * renderer.map.tileWidth, y * renderer.map.tileHeight, 0);
+		this.position.set(
+			x * renderer.map.tileWidth + renderer.map.tileWidth * 0.5,
+			y * renderer.map.tileHeight + renderer.map.tileHeight * 0.5,
+			0
+		);
 
 		this._layer = parentLayer;
 		this._renderer = renderer;

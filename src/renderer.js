@@ -1,4 +1,4 @@
-import { WebGLRenderer, OrthographicCamera, Scene, Vector2 } from "three";
+import { WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3 } from "three";
 
 import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
@@ -98,12 +98,19 @@ export class Renderer {
 		return this._tilesets[id];
 	}
 
-	getTileAtMouse(position, layerId) {
-		const normalizedPosition = new Vector2();
+	getTileAtMouse(position) {
+		const normalizedPosition = new Vector3();
 		normalizedPosition.x = (position.x / this.width) * 2 - 1;
 		normalizedPosition.y = -(position.y / this.height) * 2 + 1;
+		normalizedPosition.z = 0;
 
-		return this._layers[layerId].raycastToTile(normalizedPosition, this.camera);
+		normalizedPosition.unproject(this.camera);
+		normalizedPosition.divide(new Vector3(this.map.tileWidth, this.map.tileHeight, 1));
+
+		const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
+		tilePosition.set(parseInt(tilePosition.x), parseInt(tilePosition.y));
+
+		return tilePosition;
 	}
 
 	getTile(x, y, layerId) {

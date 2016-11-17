@@ -41,22 +41,18 @@ export class Renderer {
 		return this._canvas.offsetHeight;
 	}
 
-	update(shouldUpdate = "everything") {
-		const should = type => {
-			return shouldUpdate === "everything" || shouldUpdate[type];
-		};
-
-		if (should("size")) {
-			this._updateSize(this.width, this.height);
-		}
-
-		if (should("camera")) {
-			this.camera.updateProjectionMatrix();
-		}
-
-		if (should("tiles")) {
-			for (let layer of this._layers) {
-				layer.update();
+	update(shouldUpdate = ["size", "camera", "tiles"]) {
+		for (let toUpdate of shouldUpdate) {
+			if (toUpdate === "size") {
+				this._updateSize(this.width, this.height);
+			} else if (toUpdate === "camera") {
+				this.camera.updateProjectionMatrix();
+			} else if (toUpdate === "tiles") {
+				for (let layer of this._layers) {
+					layer.update();
+				}
+			} else {
+				console.error("Unknown update action: " + toUpdate);
 			}
 		}
 

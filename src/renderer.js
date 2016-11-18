@@ -108,7 +108,7 @@ export class Renderer {
 		normalizedPosition.divide(new Vector3(this.map.tileWidth, this.map.tileHeight, 1));
 
 		const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
-		tilePosition.set(parseInt(tilePosition.x), parseInt(tilePosition.y));
+		tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));
 
 		return tilePosition;
 	}

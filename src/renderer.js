@@ -51,6 +51,8 @@ export class Renderer {
 				for (let layer of this._layers) {
 					layer.update();
 				}
+			} else if (toUpdate === "layers") {
+				this._updateLayers();
 			} else if (toUpdate === "tilesets") {
 				this.loadTilesets();
 			} else {
@@ -74,11 +76,7 @@ export class Renderer {
 
 		this.loadTilesets();
 
-		this._layers = map.layers.map(layer => {
-			const renderLayer = new RenderLayer(this, layer);
-			this.scene.add(renderLayer);
-			return renderLayer;
-		});
+		this._updateLayers();
 	}
 
 	loadTilesets() {
@@ -127,5 +125,17 @@ export class Renderer {
 			this._canvas.height = height;
 		}
 		this.camera.right = width / height * CAMERA_UNIT;
+	}
+
+	_updateLayers() {
+		this._layers.forEach(layer => {
+			this.scene.remove(layer);
+		});
+
+		this._layers = this.map.layers.map(layer => {
+			const renderLayer = new RenderLayer(this, layer);
+			this.scene.add(renderLayer);
+			return renderLayer;
+		});
 	}
 }

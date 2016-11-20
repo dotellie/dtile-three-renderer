@@ -1,6 +1,6 @@
 {
   "name": "dtile-three-renderer",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "A threejs renderer for tilemaps.",
   "main": "out/js/build.js",
   "jsnext:main": "out/js/build.es6.js",

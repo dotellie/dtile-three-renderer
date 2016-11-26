@@ -11,7 +11,7 @@ export class RenderTileset {
 	static load(tileset, renderer) {
 		if (tileset.type === "image") {
 			return new Promise((resolve, reject) => {
-				const texture = new TextureLoader().load(tileset.path, () => {
+				const texture = new TextureLoader().load(tileset.virtualPath, () => {
 					texture.magFilter = texture.minFilter = NearestFilter;
 					resolve(new RenderTileset(tileset, texture, renderer));
 				}, undefined, e => {

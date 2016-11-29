@@ -87,7 +87,7 @@ export class Renderer {
 					this._tilesets[i] = renderTileset;
 					this.update();
 				}, e => {
-					console.error("Something went wrong while loading a texture", e);
+					throw e;
 				});
 		}
 	}

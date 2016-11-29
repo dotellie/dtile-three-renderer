@@ -57,8 +57,11 @@ export class RenderTile extends Mesh {
 			this.visible = true;
 		}
 
-		// Update texture if needed
-		if (!this.material.map || this._lastTile && this._lastTile.tilesetId !== this.tile.tilesetId) {
+		// Update texture if needed (current tileset id has to not be -1 and
+		// the tile has to either not have had any previous form or the tileset
+		// has to have been changed)
+		if ((!this._lastTile || this._lastTile.tilesetId !== this.tile.tilesetId) &&
+			this.tile.tilesetId !== -1) {
 			this.material.map = tileset.texture;
 		}
 

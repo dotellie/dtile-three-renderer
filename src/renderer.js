@@ -25,6 +25,8 @@ export class Renderer {
 		this.camera.position.z = CAMERA_UNIT;
 		this.scene = new Scene();
 
+		this.debugMode = false;
+
 		this._layers = [];
 		this._tilesets = [];
 
@@ -42,6 +44,8 @@ export class Renderer {
 	}
 
 	update(shouldUpdate = ["size", "camera", "tiles"]) {
+		if (this.debugMode) console.profile("Update: " + shouldUpdate.join(", "));
+
 		for (let toUpdate of shouldUpdate) {
 			if (toUpdate === "size") {
 				this._updateSize(this.width, this.height);
@@ -61,11 +65,18 @@ export class Renderer {
 		}
 
 		this.render();
+
+		if (this.debugMode) console.profileEnd();
 	}
 
 	render() {
 		if (testing) return;
+		if (this.debugMode) console.time("Render Time");
 		this.renderer.render(this.scene, this.camera);
+
+		if (this.debugMode) {
+			this.printDebugInfo("Render Time");
+		}
 	}
 
 	changeMap(map) {
@@ -137,5 +148,20 @@ export class Renderer {
 			this.scene.add(renderLayer);
 			return renderLayer;
 		});
+	}
+
+	printDebugInfo(consoleTimer) {
+		console.group("Render info");
+		console.log("Draw Calls: " + this.renderer.info.render.calls);
+		console.log("Vertex Count: " + this.renderer.info.render.vertices);
+		console.log("Face Count: " + this.renderer.info.render.faces);
+		console.log("---");
+		console.log("Textures Count: " + this.renderer.info.memory.textures);
+		console.log("Shader Program Count: " + this.renderer.info.programs.length);
+		if (consoleTimer) {
+			console.log("---");
+			console.timeEnd(consoleTimer);
+		}
+		console.groupEnd();
 	}
 }

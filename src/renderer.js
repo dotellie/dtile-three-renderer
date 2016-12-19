@@ -26,6 +26,7 @@ export class Renderer {
 		this.scene = new Scene();
 
 		this.debugMode = false;
+		this.runProfile = false;
 
 		this._layers = [];
 		this._tilesets = [];
@@ -44,7 +45,7 @@ export class Renderer {
 	}
 
 	update(shouldUpdate = ["size", "camera", "tiles"]) {
-		if (this.debugMode) console.profile("Update: " + shouldUpdate.join(", "));
+		if (this.debugMode && this.runProfile) console.profile("Update: " + shouldUpdate.join(", "));
 
 		for (let toUpdate of shouldUpdate) {
 			if (toUpdate === "size") {
@@ -66,7 +67,7 @@ export class Renderer {
 
 		this.render();
 
-		if (this.debugMode) console.profileEnd();
+		if (this.debugMode && this.runProfile) console.profileEnd();
 	}
 
 	render() {

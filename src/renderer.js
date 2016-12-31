@@ -4,6 +4,7 @@ import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 
 const CAMERA_UNIT = 10;
+const TILE_BASE_SIZE = 8;
 
 let testing = false;
 
@@ -24,6 +25,8 @@ export class Renderer {
 		this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);
 		this.camera.position.z = CAMERA_UNIT;
 		this.scene = new Scene();
+
+		this.tileSize = new Vector2(0, 0);
 
 		this.debugMode = false;
 		this.runProfile = false;
@@ -86,8 +89,13 @@ export class Renderer {
 
 		this.map = map;
 
-		this.loadTilesets();
+		const tileSize = new Vector2(map.tileWidth, map.tileHeight);
+		const maxTileSize = Math.max(tileSize.x, tileSize.y);
+		tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
+		this.tileSize = tileSize;
+		console.log(this.tileSize, new Vector2(map.tileWidth, map.tileHeight).setLength(1));
 
+		this.loadTilesets();
 		this._updateLayers();
 	}
 
@@ -115,7 +123,7 @@ export class Renderer {
 		normalizedPosition.z = 0;
 
 		normalizedPosition.unproject(this.camera);
-		normalizedPosition.divide(new Vector3(this.map.tileWidth, this.map.tileHeight, 1));
+		normalizedPosition.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1));
 
 		const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
 		tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));

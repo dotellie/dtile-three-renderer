@@ -1,4 +1,7 @@
-import { Object3D, Raycaster } from "three";
+import {
+	Object3D, Raycaster, Mesh, MeshBasicMaterial, DoubleSide, PlaneGeometry,
+	Matrix4
+} from "three";
 
 import { RenderTile } from "./tile";
 
@@ -9,6 +12,9 @@ export class RenderLayer extends Object3D {
 		this._renderer = renderer;
 		this._tilelayer = tilelayer;
 		this._tiles = [];
+
+		// this._mergedMesh = null;
+		this._tilesetMeshes = new Map();
 
 		this._raycaster = null;
 
@@ -26,15 +32,91 @@ export class RenderLayer extends Object3D {
 						this, this._renderer);
 
 				this._tiles[index] = tile;
-				this.add(tile);
 			}
 		}
 	}
 
 	update() {
+		const tilesetsFound = new Set();
 		for (let tile of this._tiles) {
 			tile.update();
+			tilesetsFound.add(tile.tile.tilesetId);
 		}
+
+		this._tilesetMeshes.forEach((mesh, meshId) => {
+			let exist = tilesetsFound.has(meshId);
+			if (exist) {
+				tilesetsFound.delete(meshId);
+			} else {
+				this.remove(mesh);
+				this._tilesetMeshes.delete(meshId);
+			}
+		});
+		// These are the tilesets that need to be added. The others are removed.
+		tilesetsFound.forEach(id => {
+			this.generateMesh(id);
+		});
+
+		this.applyTextures();
+		this.applyUvs();
+	}
+
+	generateMesh(id) {
+		this.remove(...this.children);
+
+		const mapWidth = this._renderer.map.width;
+		const mapHeight = this._renderer.map.height;
+		const width = mapWidth * this._renderer.tileSize.x;
+		const height = mapHeight * this._renderer.tileSize.y;
+
+		const geometry = new PlaneGeometry(width, height, mapWidth, mapHeight);
+		geometry.applyMatrix(new Matrix4().makeTranslation(width / 2, height / 2, 0));
+
+		const mesh = new Mesh(geometry, new MeshBasicMaterial({
+			side: DoubleSide,
+			transparent: true
+		}));
+
+		this._tilesetMeshes.set(id, mesh);
+		this.add(mesh);
+	}
+
+	applyTextures() {
+		this._tilesetMeshes.forEach((mesh, id) => {
+			const tileset = this._renderer.getTileset(id);
+			if (tileset) {
+				mesh.visible = true;
+				mesh.material.map = tileset.texture;
+			} else {
+				mesh.visible = false;
+			}
+		});
+	}
+
+	applyUvs() {
+		let { width, height } = this._renderer.map;
+		width = parseInt(width); height = parseInt(height);
+
+		this._tilesetMeshes.forEach(mesh => {
+			mesh.geometry.faceVertexUvs[0].forEach((vertices, i) => {
+				const uvIndex = Math.floor(i / 2);
+				const offset = i % 2;
+
+				// FIXME: PlaneGeometry has a lot of things inverted. After a
+				// lot of struggling, this worked out somehow.
+				const invertedUv = width * height - uvIndex - 1;
+				const x = invertedUv - Math.floor(invertedUv / width) * width;
+				const newX = x * -1 + width - 1;
+				const id = invertedUv - x + newX;
+				const tileObject = this._tiles[id];
+
+				vertices.forEach((vertex, index) => {
+					const { x, y } = tileObject.uvs[offset][index];
+					vertex.set(x, y);
+				});
+			});
+			mesh.geometry.uvsNeedUpdate = true;
+		});
 	}
 
 	raycastToTile(cursorPosition, camera) {

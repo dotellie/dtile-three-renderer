@@ -36,14 +36,20 @@ export class RenderTileset {
 	}
 
 	getTileUvs(id) {
+		if (id === -1) {
+			const v = new Vector2(-1, -1);
+			return makeTrisFromQuad([v, v, v, v]);
+		}
+
 		const array = [];
 
 		const tileWidth = this._renderer.map.tileWidth,
 			tileHeight = this._renderer.map.tileHeight,
 			textureWidth = this.texture.image.width,
 			textureHeight = this.texture.image.height,
-			y = parseInt(id / (textureWidth / tileWidth)),
-			x = id - y * (textureWidth / tileWidth);
+			width = textureWidth / tileWidth,
+			y = Math.floor(id / width),
+			x = Math.floor(id - y * width);
 
 		for (let ly = y; ly < y + 2; ly++) {
 			for (let lx = x; lx < x + 2; lx++) {

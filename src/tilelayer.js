@@ -1,6 +1,6 @@
 import {
 	Object3D, Raycaster, Mesh, PlaneGeometry, DoubleSide,
-	Matrix4, ShaderMaterial
+	Matrix4, ShaderMaterial, FaceColors
 } from "three";
 
 import { RenderTile } from "./tile";
@@ -16,7 +16,8 @@ const material = new ShaderMaterial({
 	fragmentShader: fragmentSrc,
 
 	transparent: true,
-	side: DoubleSide
+	side: DoubleSide,
+	vertexColors: FaceColors
 });
 
 export class RenderLayer extends Object3D {
@@ -125,6 +126,15 @@ export class RenderLayer extends Object3D {
 					const { x, y } = tileObject.uvs[offset][index];
 					vertex.set(x, y);
 				});
+
+				// const color = new Color(tileObject.tint || 0x000000);
+				// for (let j = 0; j < 3; j++) {
+				// 	mesh.geometry.faces[i].vertexColors[j] = color;
+				// }
+				mesh.geometry.faces[i].color.set(tileObject.tint || 0x000000);
+				if (tileObject.tint) {
+					mesh.geometry.colorsNeedUpdate = true;
+				}
 			});
 			mesh.geometry.uvsNeedUpdate = true;
 		});

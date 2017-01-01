@@ -1,9 +1,23 @@
 import {
-	Object3D, Raycaster, Mesh, MeshBasicMaterial, DoubleSide, PlaneGeometry,
-	Matrix4
+	Object3D, Raycaster, Mesh, PlaneGeometry, DoubleSide,
+	Matrix4, ShaderMaterial
 } from "three";
 
 import { RenderTile } from "./tile";
+
+import vertexSrc from "./shader/layer.vert";
+import fragmentSrc from "./shader/layer.frag";
+
+const material = new ShaderMaterial({
+	uniforms: {
+		texture: { type: "t", value: null }
+	},
+	vertexShader: vertexSrc,
+	fragmentShader: fragmentSrc,
+
+	transparent: true,
+	side: DoubleSide
+});
 
 export class RenderLayer extends Object3D {
 	constructor(renderer, tilelayer) {
@@ -72,10 +86,7 @@ export class RenderLayer extends Object3D {
 		const geometry = new PlaneGeometry(width, height, mapWidth, mapHeight);
 		geometry.applyMatrix(new Matrix4().makeTranslation(width / 2, height / 2, 0));
 
-		const mesh = new Mesh(geometry, new MeshBasicMaterial({
-			side: DoubleSide,
-			transparent: true
-		}));
+		const mesh = new Mesh(geometry, material.clone());
 
 		this._tilesetMeshes.set(id, mesh);
 		this.add(mesh);
@@ -86,7 +97,7 @@ export class RenderLayer extends Object3D {
 			const tileset = this._renderer.getTileset(id);
 			if (tileset) {
 				mesh.visible = true;
-				mesh.material.map = tileset.texture;
+				mesh.material.uniforms.texture.value = tileset.texture;
 			} else {
 				mesh.visible = false;
 			}

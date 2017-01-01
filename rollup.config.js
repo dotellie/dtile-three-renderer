@@ -1,4 +1,5 @@
 import nodeResolve from "rollup-plugin-node-resolve";
+import string from "rollup-plugin-string";
 
 const pkg = require("./package.json");
 
@@ -7,6 +8,9 @@ const plugins = [
 		main: true,
 		jsnext: true,
 		browser: true
+	}),
+	string({
+		include: ["**/*.frag", "**/*.vert"]
 	})
 ];
 

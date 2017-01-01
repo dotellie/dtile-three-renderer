@@ -93,7 +93,6 @@ export class Renderer {
 		const maxTileSize = Math.max(tileSize.x, tileSize.y);
 		tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
 		this.tileSize = tileSize;
-		console.log(this.tileSize, new Vector2(map.tileWidth, map.tileHeight).setLength(1));
 
 		this.loadTilesets();
 		this._updateLayers();

@@ -3,6 +3,8 @@ varying vec3 vertexColor;
 varying float vertexColorOpacity;
 varying float vertexOpacity;
 
+varying vec2 vertexPosition;
+
 void main() {
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
@@ -14,4 +16,6 @@ void main() {
 		vertexColorOpacity = 0.0;
 	}
 	vertexOpacity = 1.0;
+
+	vertexPosition = (vec4(position, 1.0) * modelMatrix).xy;
 }

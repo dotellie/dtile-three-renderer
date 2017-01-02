@@ -10,7 +10,9 @@ import fragmentSrc from "./shader/layer.frag";
 
 const material = new ShaderMaterial({
 	uniforms: {
-		texture: { type: "t", value: null }
+		texture: { type: "t", value: null },
+		tileSize: { type: "2f", value: null },
+		lineWidth: { type: "1f", value: null }
 	},
 	vertexShader: vertexSrc,
 	fragmentShader: fragmentSrc,
@@ -19,6 +21,8 @@ const material = new ShaderMaterial({
 	side: DoubleSide,
 	vertexColors: FaceColors
 });
+
+const outlineWidth = 0.5;
 
 export class RenderLayer extends Object3D {
 	constructor(renderer, tilelayer) {
@@ -136,6 +140,8 @@ export class RenderLayer extends Object3D {
 				}
 			});
 			mesh.geometry.uvsNeedUpdate = true;
+
+			this._updateMeshUniforms(mesh);
 		});
 	}
 
@@ -152,5 +158,11 @@ export class RenderLayer extends Object3D {
 
 	getTile(x, y) {
 		return this._tiles[x + y * this._renderer.map.width];
+	}
+
+	_updateMeshUniforms(mesh) {
+		const uniforms = mesh.material.uniforms;
+		uniforms.tileSize.value = this._renderer.tileSize;
+		uniforms.lineWidth.value = this._renderer.outlineEnabled ? outlineWidth : 0;
 	}
 }

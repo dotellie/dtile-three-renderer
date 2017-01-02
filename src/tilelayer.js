@@ -28,7 +28,6 @@ export class RenderLayer extends Object3D {
 		this._tilelayer = tilelayer;
 		this._tiles = [];
 
-		// this._mergedMesh = null;
 		this._tilesetMeshes = new Map();
 
 		this._raycaster = null;

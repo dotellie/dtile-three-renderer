@@ -80,8 +80,6 @@ export class RenderLayer extends Object3D {
 	}
 
 	generateMesh(id) {
-		this.remove(...this.children);
-
 		const mapWidth = this._renderer.map.width;
 		const mapHeight = this._renderer.map.height;
 		const width = mapWidth * this._renderer.tileSize.x;
@@ -112,7 +110,7 @@ export class RenderLayer extends Object3D {
 		let { width, height } = this._renderer.map;
 		width = parseInt(width); height = parseInt(height);
 
-		this._tilesetMeshes.forEach(mesh => {
+		this._tilesetMeshes.forEach((mesh, tilesetId) => {
 			mesh.geometry.faceVertexUvs[0].forEach((vertices, i) => {
 				const uvIndex = Math.floor(i / 2);
 				const offset = i % 2;
@@ -126,7 +124,12 @@ export class RenderLayer extends Object3D {
 				const tileObject = this._tiles[id];
 
 				vertices.forEach((vertex, index) => {
-					const { x, y } = tileObject.uvs[offset][index];
+					const isEmpty = tileObject.uvs.length === 0 ||
+						tileObject.tile.tilesetId !== tilesetId;
+
+					const { x, y } = !isEmpty
+						? tileObject.uvs[offset][index]
+						: { x: -1, y: -1 };
 					vertex.set(x, y);
 				});
 

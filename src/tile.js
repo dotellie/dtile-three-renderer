@@ -4,7 +4,7 @@ import {
 
 export class RenderTile {
 	constructor(x, y, tile, parentLayer, renderer) {
-		this.uvs = [[], []];
+		this.uvs = [];
 
 		this._tilePosition = new Vector2(x, y);
 		this.worldPosition = new Vector2(
@@ -25,6 +25,8 @@ export class RenderTile {
 
 	update() {
 		const tileset = this._renderer.getTileset(this.tile.tilesetId);
+
+		if (!tileset) return;
 
 		if (!this._lastTile ||
 			this.tile.tileId !== this._lastTile.tileId ||

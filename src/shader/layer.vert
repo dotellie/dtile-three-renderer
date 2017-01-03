@@ -15,7 +15,7 @@ void main() {
 	} else {
 		vertexColorOpacity = 0.0;
 	}
-	vertexOpacity = 1.0;
+	vertexOpacity = uv.x < 0.0 || uv.y < 0.0 ? 0.0 : 1.0;
 
 	vertexPosition = (vec4(position, 1.0) * modelMatrix).xy;
 }

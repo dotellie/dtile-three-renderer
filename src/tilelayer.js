@@ -76,7 +76,7 @@ export class RenderLayer extends Object3D {
 		});
 
 		this.applyTextures();
-		this.applyUvs();
+		this.updateMeshes();
 	}
 
 	generateMesh(id) {
@@ -106,7 +106,7 @@ export class RenderLayer extends Object3D {
 		});
 	}
 
-	applyUvs() {
+	updateMeshes() {
 		let { width, height } = this._renderer.map;
 		width = parseInt(width); height = parseInt(height);
 
@@ -134,10 +134,8 @@ export class RenderLayer extends Object3D {
 				});
 
 				mesh.geometry.faces[i].color.set(tileObject.tint || 0x000000);
-				if (tileObject.tint) {
-					mesh.geometry.colorsNeedUpdate = true;
-				}
 			});
+			mesh.geometry.colorsNeedUpdate = true;
 			mesh.geometry.uvsNeedUpdate = true;
 
 			this._updateMeshUniforms(mesh);

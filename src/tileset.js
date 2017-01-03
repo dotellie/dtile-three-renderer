@@ -10,6 +10,7 @@ export class RenderTileset {
 
 	static load(tileset, renderer) {
 		const resolveTexture = (resolve, texture) => {
+			texture.name = `Tileset ${tileset.name}`;
 			texture.magFilter = texture.minFilter = NearestFilter;
 			texture.generateMipmaps = false;
 			resolve(new RenderTileset(tileset, texture, renderer));

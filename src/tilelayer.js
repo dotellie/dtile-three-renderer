@@ -133,10 +133,6 @@ export class RenderLayer extends Object3D {
 					vertex.set(x, y);
 				});
 
-				// const color = new Color(tileObject.tint || 0x000000);
-				// for (let j = 0; j < 3; j++) {
-				// 	mesh.geometry.faces[i].vertexColors[j] = color;
-				// }
 				mesh.geometry.faces[i].color.set(tileObject.tint || 0x000000);
 				if (tileObject.tint) {
 					mesh.geometry.colorsNeedUpdate = true;

@@ -9,11 +9,16 @@ export class RenderTileset {
 	}
 
 	static load(tileset, renderer) {
+		const resolveTexture = (resolve, texture) => {
+			texture.magFilter = texture.minFilter = NearestFilter;
+			texture.generateMipmaps = false;
+			resolve(new RenderTileset(tileset, texture, renderer));
+		};
+
 		if (tileset.type === "image") {
 			return new Promise((resolve, reject) => {
 				const texture = new TextureLoader().load(tileset.virtualPath, () => {
-					texture.magFilter = texture.minFilter = NearestFilter;
-					resolve(new RenderTileset(tileset, texture, renderer));
+					resolveTexture(resolve, texture);
 				}, undefined, e => {
 					reject(e);
 				});
@@ -26,8 +31,7 @@ export class RenderTileset {
 				);
 
 				const texture = new TextureLoader().load(testTileset, () => {
-					texture.magFilter = texture.minFilter = NearestFilter;
-					resolve(new RenderTileset(tileset, texture, renderer));
+					resolveTexture(resolve, texture);
 				}, undefined, e => {
 					reject(e);
 				});

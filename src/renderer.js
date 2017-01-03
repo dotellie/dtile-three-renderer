@@ -4,7 +4,7 @@ import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 
 const CAMERA_UNIT = 10;
-const TILE_BASE_SIZE = 8;
+const TILE_BASE_SIZE = 16;
 
 let testing = false;
 

@@ -26,6 +26,6 @@
     "rollup-watch": "^2.5.0"
   },
   "dependencies": {
-    "three": "^0.82.1"
+    "three": "^0.83.0"
   }
 }

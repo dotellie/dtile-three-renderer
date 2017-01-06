@@ -71,8 +71,8 @@ export class RenderTileset {
 
 function makeTrisFromQuad(quad) {
 	return [
-		[quad[2], quad[0], quad[3]],
-		[quad[0], quad[1], quad[3]]
+		[quad[0], quad[2], quad[1]],
+		[quad[2], quad[3], quad[1]]
 	];
 }
 

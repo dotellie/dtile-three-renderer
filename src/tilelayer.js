@@ -1,8 +1,9 @@
 import {
-	Object3D, Raycaster, Mesh, PlaneGeometry, DoubleSide,
-	Matrix4, ShaderMaterial, FaceColors
+	Object3D, Raycaster, Mesh, DoubleSide, BufferAttribute, BufferGeometry,
+	ShaderMaterial, FaceColors, Vector2
 } from "three";
 
+import { TileGeometry } from "./tileGeometry";
 import { RenderTile } from "./tile";
 
 import vertexSrc from "./shader/layer.vert";
@@ -11,8 +12,8 @@ import fragmentSrc from "./shader/layer.frag";
 const material = new ShaderMaterial({
 	uniforms: {
 		texture: { type: "t", value: null },
-		tileSize: { type: "2f", value: null },
-		lineWidth: { type: "1f", value: null }
+		tileSize: { type: "2f", value: new Vector2(0, 0) },
+		lineWidth: { type: "1f", value: 0 }
 	},
 	vertexShader: vertexSrc,
 	fragmentShader: fragmentSrc,
@@ -46,8 +47,8 @@ export class RenderLayer extends Object3D {
 		for (let y = 0; y < mapHeight; y++) {
 			for (let x = 0; x < mapWidth; x++) {
 				const index = y * mapWidth + x,
-					tile = new RenderTile(x, y, this._tilelayer.tiles[index],
-						this, this._renderer);
+					tile = new RenderTile(x, y,
+						this._tilelayer.tiles[index], this._renderer);
 
 				this._tiles[index] = tile;
 			}
@@ -58,7 +59,10 @@ export class RenderLayer extends Object3D {
 		const tilesetsFound = new Set();
 		for (let tile of this._tiles) {
 			tile.update();
-			tilesetsFound.add(tile.tile.tilesetId);
+			const tilesetId = tile.currentTilesetId;
+			if (tilesetId >= 0) {
+				tilesetsFound.add(tilesetId);
+			}
 		}
 
 		this._tilesetMeshes.forEach((mesh, meshId) => {
@@ -85,8 +89,11 @@ export class RenderLayer extends Object3D {
 		const width = mapWidth * this._renderer.tileSize.x;
 		const height = mapHeight * this._renderer.tileSize.y;
 
-		const geometry = new PlaneGeometry(width, height, mapWidth, mapHeight);
-		geometry.applyMatrix(new Matrix4().makeTranslation(width / 2, height / 2, 0));
+		const tileGeometry = new TileGeometry(width, height, mapWidth, mapHeight);
+		const geometry = new BufferGeometry().fromGeometry(tileGeometry);
+
+		const opacity = new Float32Array(mapWidth * mapHeight * 2 * 3);
+		geometry.addAttribute("opacity", new BufferAttribute(opacity, 1));
 
 		const mesh = new Mesh(geometry, material.clone());
 
@@ -107,38 +114,58 @@ export class RenderLayer extends Object3D {
 	}
 
 	updateMeshes() {
-		let { width, height } = this._renderer.map;
-		width = parseInt(width); height = parseInt(height);
+		this._tilesetMeshes.forEach((mesh, meshTilesetId) => {
+			const { uv, color, opacity } = mesh.geometry.attributes;
 
-		this._tilesetMeshes.forEach((mesh, tilesetId) => {
-			mesh.geometry.faceVertexUvs[0].forEach((vertices, i) => {
-				const uvIndex = Math.floor(i / 2);
-				const offset = i % 2;
+			let offset2 = 0, offset3 = 0;
 
-				// FIXME: PlaneGeometry has a lot of things inverted. After a
-				// lot of struggling, this worked out somehow.
-				const invertedUv = width * height - uvIndex - 1;
-				const x = invertedUv - Math.floor(invertedUv / width) * width;
-				const newX = x * -1 + width - 1;
-				const id = invertedUv - x + newX;
-				const tileObject = this._tiles[id];
+			const faces = uv.count / 3;
 
-				vertices.forEach((vertex, index) => {
-					const isEmpty = tileObject.uvs.length === 0 ||
-						tileObject.tile.tilesetId !== tilesetId;
+			for (let i = 0; i < faces; i++) {
+				const tileObject = this._tiles[Math.floor(i * 0.5)];
 
-					const { x, y } = !isEmpty
-						? tileObject.uvs[offset][index]
-						: { x: -1, y: -1 };
-					vertex.set(x, y);
-				});
+				if (tileObject.triRenderCount < 2) {
+					tileObject.triRenderCount++;
 
-				mesh.geometry.faces[i].color.set(tileObject.tint || 0x000000);
-			});
-			mesh.geometry.colorsNeedUpdate = true;
-			mesh.geometry.uvsNeedUpdate = true;
+					const { currentTileId: tileId, currentTilesetId: tilesetId,
+						tint, opacity: tileOpacity } = tileObject;
 
-			this._updateMeshUniforms(mesh);
+					let tileUvs = tileObject.uvs;
+
+					if (tileId < 0 || tileUvs.length === 0 || tilesetId !== meshTilesetId) {
+						tileUvs = [[-1, -1, -1], [-1, -1, -1]];
+					}
+
+					let newOff2 = 0, newOff3 = 0;
+					const uvOffset = i % 2;
+
+					for (let j = 0; j < 3; j++) {
+						opacity.array[i * 3 + j] = tileOpacity;
+
+						uv.array[offset2 + newOff2] = tileUvs[uvOffset][j].x;
+						uv.array[offset2 + newOff2 + 1] = tileUvs[uvOffset][j].y;
+
+						color.array[offset3 + newOff3] = tint.r;
+						color.array[offset3 + newOff3 + 1] = tint.g;
+						color.array[offset3 + newOff3 + 2] = tint.b;
+
+						newOff2 = newOff2 + 2;
+						newOff3 = newOff3 + 3;
+					}
+				} else {
+					// The tile is rendered, so we skip rendering the other tri.
+					i++;
+					offset2 = offset2 + 6;
+					offset3 = offset3 + 9;
+				}
+
+				offset2 = offset2 + 6;
+				offset3 = offset3 + 9;
+			}
+
+			uv.needsUpdate = true;
+			color.needsUpdate = true;
+			opacity.needsUpdate = true;
 		});
 	}
 

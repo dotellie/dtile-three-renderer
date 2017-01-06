@@ -1,39 +1,61 @@
 import {
-	Vector2
+	Color
 } from "three";
 
 export class RenderTile {
-	constructor(x, y, tile, parentLayer, renderer) {
+	constructor(x, y, tile, renderer) {
 		this.uvs = [];
 
-		this._tilePosition = new Vector2(x, y);
-		this.worldPosition = new Vector2(
-			x * renderer.map.tileWidth + renderer.map.tileWidth * 0.5,
-			y * renderer.map.tileHeight + renderer.map.tileHeight * 0.5
-		);
-
-		this._layer = parentLayer;
+		this._tile = tile;
 		this._renderer = renderer;
-		this.tile = tile;
 
-		this.tint = false; // Color (0xffffff) to tint, false to "un-tint"
+		this.currentId = -1;
+		this.currentTilesetId = -1;
+
+		this._ghost = null;
+
+		this.tint = new Color(0x000000);
+		this.opacity = 1;
+
+		this.triRenderCount = 0;
 	}
 
-	get tilePosition() {
-		return this._tilePosition.clone();
+	get needsUpdate() {
+		return !this._lastTile ||
+			this.currentId !== this._lastTile.tileId ||
+			this.currentTilesetId !== this._lastTile.tilesetId;
 	}
 
 	update() {
-		const tileset = this._renderer.getTileset(this.tile.tilesetId);
+		this.currentId = this._ghost ? this._ghost.tileId : this._tile.tileId;
+		this.currentTilesetId = this._ghost ? this._ghost.tilesetId : this._tile.tilesetId;
 
-		if (!tileset) return;
+		if (this.needsUpdate) {
+			const tileset = this._renderer.getTileset(this.currentTilesetId);
+			if (!tileset) return;
 
-		if (!this._lastTile ||
-			this.tile.tileId !== this._lastTile.tileId ||
-			this.tile.tilesetId !== this._lastTile.tilesetId) {
-			this.uvs = tileset.getTileUvs(this.tile.tileId);
+			this.uvs = tileset.getTileUvs(this.currentId);
 
-			this._lastTile = this.tile.clone();
+			this._lastTile = { tileId: this.currentId, tilesetId: this.currentTilesetId };
+			this.triRenderCount = 0;
 		}
+	}
+
+	setTint(tint) {
+		this.tint = new Color(tint || 0x000000);
+		this.resetRenderCount();
+	}
+
+	setGhost(tile) {
+		this._ghost = tile;
+		const tileDifference = tile &&
+			(tile.tileId !== this._tile.tileId ||
+			tile.tilesetId !== this._tile.tilesetId);
+		this.opacity = tileDifference ? 0.8 : 1;
+		this.resetRenderCount();
+	}
+
+	resetRenderCount() {
+		this.triRenderCount = 0;
 	}
 }

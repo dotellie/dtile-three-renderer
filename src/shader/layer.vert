@@ -1,3 +1,5 @@
+attribute float opacity;
+
 varying vec2 uvFinal;
 varying vec3 vertexColor;
 varying float vertexColorOpacity;
@@ -15,7 +17,7 @@ void main() {
 	} else {
 		vertexColorOpacity = 0.0;
 	}
-	vertexOpacity = uv.x < 0.0 || uv.y < 0.0 ? 0.0 : 1.0;
+	vertexOpacity = uv.x < 0.0 || uv.y < 0.0 ? 0.0 : opacity;
 
 	vertexPosition = (vec4(position, 1.0) * modelMatrix).xy;
 }

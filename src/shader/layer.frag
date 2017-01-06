@@ -20,6 +20,8 @@ vec4 normalBlend(vec4 b, vec4 s) {
 
 void main() {
 	vec4 textureColor = texture2D(texture, uvFinal);
+	textureColor.a *= vertexOpacity;
+	
 	if (lineWidth > 0.0) {
 		if (mod(vertexPosition.x + lineWidth * 0.5, tileSize.x) < lineWidth ||
 			mod(vertexPosition.y + lineWidth * 0.5, tileSize.y) < lineWidth) {
@@ -29,7 +31,7 @@ void main() {
 
 	vec4 otherColor = vec4(vertexColor, vertexColorOpacity);
 
-	vec4 finalColor = normalBlend(textureColor * vertexOpacity, otherColor);
+	vec4 finalColor = normalBlend(textureColor, otherColor);
 
 	gl_FragColor = finalColor;
 }

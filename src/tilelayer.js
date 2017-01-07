@@ -163,6 +163,8 @@ export class RenderLayer extends Object3D {
 				offset3 = offset3 + 9;
 			}
 
+			this._updateMeshUniforms(mesh);
+
 			uv.needsUpdate = true;
 			color.needsUpdate = true;
 			opacity.needsUpdate = true;

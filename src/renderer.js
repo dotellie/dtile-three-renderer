@@ -1,4 +1,7 @@
-import { WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3 } from "three";
+import {
+	WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3, BoxGeometry,
+	MeshBasicMaterial, Mesh
+} from "three";
 
 import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
@@ -14,7 +17,7 @@ export class Renderer {
 		console.info("[dtile-three-renderer] Testing mode enabled; WebGL will not be used.");
 	}
 
-	constructor(canvas, alpha) {
+	constructor(canvas, alpha, backdrop) {
 		this._canvas = canvas;
 		if (!testing) {
 			this.renderer = new WebGLRenderer({
@@ -35,6 +38,7 @@ export class Renderer {
 		this._tilesets = [];
 
 		this.outlineEnabled = false;
+		this._backdropEnabled = backdrop;
 
 		this.update();
 	}
@@ -45,6 +49,21 @@ export class Renderer {
 
 	get height() {
 		return this._canvas.offsetHeight;
+	}
+
+	get backdropEnabled() {
+		return this._backdropEnabled;
+	}
+
+	set backdropEnabled(enabled) {
+		this._backdropEnabled = enabled;
+
+		if (enabled) {
+			this._generateBackdrop();
+		} else {
+			this.scene.remove(this._baseMesh);
+			this._baseMesh = null;
+		}
 	}
 
 	update(shouldUpdate = ["size", "camera", "tiles"]) {
@@ -94,6 +113,8 @@ export class Renderer {
 		tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
 		this.tileSize = tileSize;
 
+		if (this._backdropEnabled) this._generateBackdrop();
+
 		this.loadTilesets();
 		this._updateLayers();
 	}
@@ -132,6 +153,18 @@ export class Renderer {
 
 	getTile(x, y, layerId) {
 		return this._layers[layerId].getTile(x, y);
+	}
+
+	_generateBackdrop() {
+		const width = this.tileSize.x * this.map.width;
+		const height = this.tileSize.y * this.map.height;
+
+		const baseGeometry = new BoxGeometry(width, height, 1);
+		const baseMaterial = new MeshBasicMaterial({ color: 0x212121 });
+		this._baseMesh = new Mesh(baseGeometry, baseMaterial);
+		this._baseMesh.translateX(width / 2);
+		this._baseMesh.translateY(height / 2);
+		this.scene.add(this._baseMesh);
 	}
 
 	_updateSize(width, height) {

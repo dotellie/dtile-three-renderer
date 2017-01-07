@@ -18,12 +18,16 @@ const material = new ShaderMaterial({
 	vertexShader: vertexSrc,
 	fragmentShader: fragmentSrc,
 
+	extensions: {
+		derivatives: true
+	},
+
 	transparent: true,
 	side: DoubleSide,
 	vertexColors: FaceColors
 });
 
-const outlineWidth = 0.5;
+const outlineWidth = 1;
 
 export class RenderLayer extends Object3D {
 	constructor(renderer, tilelayer) {

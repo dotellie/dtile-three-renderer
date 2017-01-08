@@ -1,6 +1,6 @@
 import {
 	Object3D, Raycaster, Mesh, DoubleSide, BufferAttribute, BufferGeometry,
-	ShaderMaterial, FaceColors, Vector2
+	ShaderMaterial, FaceColors, Vector2, Color
 } from "three";
 
 import { TileGeometry } from "./tileGeometry";
@@ -119,48 +119,29 @@ export class RenderLayer extends Object3D {
 
 	updateMeshes() {
 		this._tilesetMeshes.forEach((mesh, meshTilesetId) => {
-			const { uv, color, opacity } = mesh.geometry.attributes;
+			const attributes = mesh.geometry.attributes;
+			const noColor = new Color(0x000000);
+			const noUv = new Vector2(-1, -1);
 
 			let offset2 = 0, offset3 = 0;
 
-			const faces = uv.count / 3;
+			const faces = attributes.uv.count / 3;
 
 			for (let i = 0; i < faces; i++) {
 				const tileObject = this._tiles[Math.floor(i * 0.5)];
 
-				if (tileObject.triRenderCount < 2) {
-					tileObject.triRenderCount++;
+				const { currentId: tileId, currentTilesetId: tilesetId,
+					tint, opacity: tileOpacity, uvs } = tileObject;
 
-					const { currentTileId: tileId, currentTilesetId: tilesetId,
-						tint, opacity: tileOpacity } = tileObject;
-
-					let tileUvs = tileObject.uvs;
-
-					if (tileId < 0 || tileUvs.length === 0 || tilesetId !== meshTilesetId) {
-						tileUvs = [[-1, -1, -1], [-1, -1, -1]];
-					}
-
-					let newOff2 = 0, newOff3 = 0;
-					const uvOffset = i % 2;
-
-					for (let j = 0; j < 3; j++) {
-						opacity.array[i * 3 + j] = tileOpacity;
-
-						uv.array[offset2 + newOff2] = tileUvs[uvOffset][j].x;
-						uv.array[offset2 + newOff2 + 1] = tileUvs[uvOffset][j].y;
-
-						color.array[offset3 + newOff3] = tint.r;
-						color.array[offset3 + newOff3 + 1] = tint.g;
-						color.array[offset3 + newOff3 + 2] = tint.b;
-
-						newOff2 = newOff2 + 2;
-						newOff3 = newOff3 + 3;
+				if (tilesetId === meshTilesetId && tileId >= 0 && uvs.length > 0) {
+					if (tileObject.triRenderCount < 2) {
+						tileObject.triRenderCount++;
+						setAttributesForFace(attributes, offset2, offset3, i,
+							tileOpacity, uvs[i % 2], tint);
 					}
 				} else {
-					// The tile is rendered, so we skip rendering the other tri.
-					i++;
-					offset2 = offset2 + 6;
-					offset3 = offset3 + 9;
+					setAttributesForFace(attributes, offset2, offset3, i,
+						1, [noUv, noUv, noUv], noColor);
 				}
 
 				offset2 = offset2 + 6;
@@ -169,9 +150,9 @@ export class RenderLayer extends Object3D {
 
 			this._updateMeshUniforms(mesh);
 
-			uv.needsUpdate = true;
-			color.needsUpdate = true;
-			opacity.needsUpdate = true;
+			attributes.uv.needsUpdate = true;
+			attributes.color.needsUpdate = true;
+			attributes.opacity.needsUpdate = true;
 		});
 	}
 
@@ -196,3 +177,21 @@ export class RenderLayer extends Object3D {
 		uniforms.lineWidth.value = this._renderer.outlineEnabled ? outlineWidth : 0;
 	}
 }
+
+function setAttributesForFace(attributes, offset2, offset3, i,
+	faceOpacity, uvArray, tint) {
+	let off2 = 0, off3 = 0;
+	for (let j = 0; j < 3; j++) {
+		attributes.opacity.array[i * 3 + j] = faceOpacity;
+
+		attributes.uv.array[offset2 + off2] = uvArray[j].x;
+		attributes.uv.array[offset2 + off2 + 1] = uvArray[j].y;
+
+		attributes.color.array[offset3 + off3] = tint.r;
+		attributes.color.array[offset3 + off3 + 1] = tint.g;
+		attributes.color.array[offset3 + off3 + 2] = tint.b;
+
+		off2 = off2 + 2;
+		off3 = off3 + 3;
+	}
+};

@@ -5,6 +5,7 @@ import {
 
 import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
+import { RenderMapObject } from "./mapObject";
 
 export const CAMERA_UNIT = 10;
 export const TILE_BASE_SIZE = 16;
@@ -38,6 +39,7 @@ export class Renderer {
 
 		this._layers = [];
 		this._tilesets = [];
+		this._objects = [];
 
 		this.outlineEnabled = false;
 		this._backdropEnabled = backdrop;
@@ -85,6 +87,8 @@ export class Renderer {
 				this._updateLayers();
 			} else if (toUpdate === "tilesets") {
 				this.loadTilesets();
+			} else if (toUpdate === "objects") {
+				this._updateObjects();
 			} else {
 				console.error("Unknown update action: " + toUpdate);
 			}
@@ -196,6 +200,18 @@ export class Renderer {
 			const renderLayer = new RenderLayer(this, layer);
 			this.scene.add(renderLayer);
 			return renderLayer;
+		});
+	}
+
+	_updateObjects() {
+		this._objects.forEach(object => {
+			this.scene.remove(object);
+		});
+
+		this._objects = this.map.objects.map(object => {
+			const renderMapObject = new RenderMapObject(this, object);
+			this.scene.add(renderMapObject);
+			return renderMapObject;
 		});
 	}
 

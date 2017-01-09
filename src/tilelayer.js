@@ -156,17 +156,6 @@ export class RenderLayer extends Object3D {
 		});
 	}
 
-	raycastToTile(cursorPosition, camera) {
-		if (!this._raycaster) this._raycaster = new Raycaster();
-
-		this._raycaster.setFromCamera(cursorPosition, camera);
-
-		const intersections = this._raycaster.intersectObjects(this.children);
-		for (let intersection of intersections) {
-			return intersection.object.tilePosition;
-		}
-	}
-
 	getTile(x, y) {
 		return this._tiles[x + y * this._renderer.map.width];
 	}

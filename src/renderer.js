@@ -26,13 +26,15 @@ export class Renderer {
 			});
 		}
 		this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);
-		this.camera.position.z = CAMERA_UNIT;
+		this.camera.position.setZ(CAMERA_UNIT);
 		this.scene = new Scene();
 
 		this.tileSize = new Vector2(0, 0);
 
 		this.debugMode = false;
 		this.runProfile = false;
+
+		this._sizeChanged = true;
 
 		this._layers = [];
 		this._tilesets = [];
@@ -44,11 +46,11 @@ export class Renderer {
 	}
 
 	get width() {
-		return this._canvas.offsetWidth;
+		return this._currentWidth;
 	}
 
 	get height() {
-		return this._canvas.offsetHeight;
+		return this._currentHeight;
 	}
 
 	get backdropEnabled() {
@@ -71,6 +73,7 @@ export class Renderer {
 
 		for (let toUpdate of shouldUpdate) {
 			if (toUpdate === "size") {
+				this._updateCanvasSize();
 				this._updateSize(this.width, this.height);
 			} else if (toUpdate === "camera") {
 				this.camera.updateProjectionMatrix();
@@ -165,6 +168,11 @@ export class Renderer {
 		this._baseMesh.translateX(width / 2);
 		this._baseMesh.translateY(height / 2);
 		this.scene.add(this._baseMesh);
+	}
+
+	_updateCanvasSize() {
+		this._currentWidth = this._canvas.offsetWidth;
+		this._currentHeight = this._canvas.offsetHeight;
 	}
 
 	_updateSize(width, height) {

@@ -24,6 +24,10 @@ export class RenderMapObject extends Mesh {
 		this._renderer = renderer;
 		this._object = object;
 	}
+
+	get mapObject() {
+		return this._object;
+	}
 }
 
 function generateTexture(color, text, width, height, font = "15px Arial") {

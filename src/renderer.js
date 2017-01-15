@@ -1,6 +1,6 @@
 import {
 	WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3, BoxGeometry,
-	MeshBasicMaterial, Mesh
+	MeshBasicMaterial, Mesh, Raycaster
 } from "three";
 
 import { RenderLayer } from "./tilelayer";
@@ -43,6 +43,8 @@ export class Renderer {
 
 		this.outlineEnabled = false;
 		this._backdropEnabled = backdrop;
+
+		this._raycaster = new Raycaster();
 
 		this.update();
 	}
@@ -143,23 +145,49 @@ export class Renderer {
 		return this._tilesets[id];
 	}
 
-	getTileAtMouse(position) {
-		const normalizedPosition = new Vector3();
-		normalizedPosition.x = (position.x / this.width) * 2 - 1;
-		normalizedPosition.y = -(position.y / this.height) * 2 + 1;
-		normalizedPosition.z = 0;
+	unprojectToTilePosition(position, includeDecimals) {
+		const normalizedPosition = this._normalizePosition(position);
 
 		normalizedPosition.unproject(this.camera);
 		normalizedPosition.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1));
 
 		const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
-		tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));
+		if (!includeDecimals) {
+			tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));
+		}
 
 		return tilePosition;
 	}
 
 	getTile(x, y, layerId) {
 		return this._layers[layerId].getTile(x, y);
+	}
+
+	getObjectInformationAtMouse(mousePosition) {
+		const normalizedPosition = this._normalizePosition(mousePosition);
+
+		this._raycaster.setFromCamera(normalizedPosition, this.camera);
+		const intersects = this._raycaster.intersectObjects(this._objects);
+
+		if (intersects.length <= 0) return null;
+
+		const intersection = intersects[0];
+		const position = intersection.point
+			.sub(intersection.object.getWorldPosition()) // Local position
+			.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1)); // Tile position
+		return {
+			object: intersection.object.mapObject,
+			position
+		};
+	}
+
+	_normalizePosition(position) {
+		const normalizedPosition = new Vector3();
+		normalizedPosition.x = (position.x / this.width) * 2 - 1;
+		normalizedPosition.y = -(position.y / this.height) * 2 + 1;
+		normalizedPosition.z = 0;
+
+		return normalizedPosition;
 	}
 
 	_generateBackdrop() {

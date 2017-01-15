@@ -1,5 +1,5 @@
 import {
-	Object3D, Raycaster, Mesh, DoubleSide, BufferAttribute, BufferGeometry,
+	Object3D, Mesh, DoubleSide, BufferAttribute, BufferGeometry,
 	ShaderMaterial, FaceColors, Vector2, Color
 } from "three";
 

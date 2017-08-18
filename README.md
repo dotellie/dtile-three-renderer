@@ -2,17 +2,10 @@
 [![Build Status](https://travis-ci.org/magnonellie/dtile-three-renderer.svg?branch=master)](https://travis-ci.org/magnonellie/dtile-three-renderer)
 
 dtile-three-renderer is a renderer made with [Three.js](https://threejs.org/)
-for rendering [dtile-tilemap](https://github.com/magnonellie/dtile-tilemap)
-tilemaps.
-
-## It's slow.
-Trust me, it is. I made some (questionable) decisions while coding this together
-which has had the result of this being quite slow. I always appreciate when people
-send in PR's or give me suggestions to fix these kind of things, so if you have
-an idea, contact me on Twitter ([@magnonellie](https://twitter.com/magnonellie))!
+for rendering tilemaps on the web.
 
 ### Design decisions
-- Tiles are ***not*** rendered with sprites, but instead use planes. This allows us to bring DTile to the third dimension in the future, but for now is quite slow since it disables all kind of batching.
+- Tiles are ***not*** rendered with sprites, but instead use planes. This allows us to bring DTile to the third dimension in the future.
 - It's ***not*** continuously updating. You have to manually update the renderer when you make a change to camera, tiles, size, etc. This is to save performance when it's not in use. This may backfire in the future once we start involving animations, but for now, I think this works.
 - There are ***no*** tests. I find it incredibly difficult to find a good way to test front-end stuff and since this is essentially just a layer over three, I decided tests wouldn't be too useful for now. Therefore, the test command just executes a lint.
 - There is probably a whole lot more which belongs to this section, but I can't come to think of them right now. xP

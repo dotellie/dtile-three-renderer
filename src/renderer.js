@@ -1,6 +1,6 @@
 import {
-	WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3, BoxGeometry,
-	MeshBasicMaterial, Mesh, Raycaster
+    WebGLRenderer, OrthographicCamera, Scene, Vector2, Vector3, BoxGeometry,
+    MeshBasicMaterial, Mesh, Raycaster
 } from "three";
 
 import { RenderLayer } from "./tilelayer";
@@ -13,248 +13,248 @@ export const TILE_BASE_SIZE = 16;
 let testing = false;
 
 export class Renderer {
-	static enableTesting() {
-		testing = true;
-		console.info("[dtile-three-renderer] Testing mode enabled; WebGL will not be used.");
-	}
+    static enableTesting() {
+        testing = true;
+        console.info("[dtile-three-renderer] Testing mode enabled; WebGL will not be used.");
+    }
 
-	constructor(canvas, alpha, backdrop) {
-		this._canvas = canvas;
-		if (!testing) {
-			this.renderer = new WebGLRenderer({
-				canvas,
-				alpha
-			});
-		}
-		this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);
-		this.camera.position.setZ(CAMERA_UNIT);
-		this.scene = new Scene();
+    constructor(canvas, alpha, backdrop) {
+        this._canvas = canvas;
+        if (!testing) {
+            this.renderer = new WebGLRenderer({
+                canvas,
+                alpha
+            });
+        }
+        this.camera = new OrthographicCamera(0, CAMERA_UNIT, 0, CAMERA_UNIT, 0.1, CAMERA_UNIT * 10);
+        this.camera.position.setZ(CAMERA_UNIT);
+        this.scene = new Scene();
 
-		this.tileSize = new Vector2(0, 0);
+        this.tileSize = new Vector2(0, 0);
 
-		this.debugMode = false;
-		this.runProfile = false;
+        this.debugMode = false;
+        this.runProfile = false;
 
-		this._sizeChanged = true;
+        this._sizeChanged = true;
 
-		this._layers = [];
-		this._tilesets = [];
-		this._objects = [];
+        this._layers = [];
+        this._tilesets = [];
+        this._objects = [];
 
-		this.outlineEnabled = false;
-		this._backdropEnabled = backdrop;
+        this.outlineEnabled = false;
+        this._backdropEnabled = backdrop;
 
-		this._raycaster = new Raycaster();
+        this._raycaster = new Raycaster();
 
-		this.update();
-	}
+        this.update();
+    }
 
-	get width() {
-		return this._currentWidth;
-	}
+    get width() {
+        return this._currentWidth;
+    }
 
-	get height() {
-		return this._currentHeight;
-	}
+    get height() {
+        return this._currentHeight;
+    }
 
-	get backdropEnabled() {
-		return this._backdropEnabled;
-	}
+    get backdropEnabled() {
+        return this._backdropEnabled;
+    }
 
-	set backdropEnabled(enabled) {
-		this._backdropEnabled = enabled;
+    set backdropEnabled(enabled) {
+        this._backdropEnabled = enabled;
 
-		if (enabled) {
-			this._generateBackdrop();
-		} else {
-			this.scene.remove(this._baseMesh);
-			this._baseMesh = null;
-		}
-	}
+        if (enabled) {
+            this._generateBackdrop();
+        } else {
+            this.scene.remove(this._baseMesh);
+            this._baseMesh = null;
+        }
+    }
 
-	update(shouldUpdate = ["size", "camera", "tiles"]) {
-		if (this.debugMode && this.runProfile) console.profile("Update: " + shouldUpdate.join(", "));
+    update(shouldUpdate = ["size", "camera", "tiles"]) {
+        if (this.debugMode && this.runProfile) console.profile("Update: " + shouldUpdate.join(", "));
 
-		for (let toUpdate of shouldUpdate) {
-			if (toUpdate === "size") {
-				this._updateCanvasSize();
-				this._updateSize(this.width, this.height);
-			} else if (toUpdate === "camera") {
-				this.camera.updateProjectionMatrix();
-			} else if (toUpdate === "tiles") {
-				for (let layer of this._layers) {
-					layer.update();
-				}
-			} else if (toUpdate === "layers") {
-				this._updateLayers();
-			} else if (toUpdate === "tilesets") {
-				this.loadTilesets();
-			} else if (toUpdate === "objects") {
-				this._updateObjects();
-			} else {
-				console.error("Unknown update action: " + toUpdate);
-			}
-		}
+        for (let toUpdate of shouldUpdate) {
+            if (toUpdate === "size") {
+                this._updateCanvasSize();
+                this._updateSize(this.width, this.height);
+            } else if (toUpdate === "camera") {
+                this.camera.updateProjectionMatrix();
+            } else if (toUpdate === "tiles") {
+                for (let layer of this._layers) {
+                    layer.update();
+                }
+            } else if (toUpdate === "layers") {
+                this._updateLayers();
+            } else if (toUpdate === "tilesets") {
+                this.loadTilesets();
+            } else if (toUpdate === "objects") {
+                this._updateObjects();
+            } else {
+                console.error("Unknown update action: " + toUpdate);
+            }
+        }
 
-		this.render();
+        this.render();
 
-		if (this.debugMode && this.runProfile) console.profileEnd();
-	}
+        if (this.debugMode && this.runProfile) console.profileEnd();
+    }
 
-	render() {
-		if (testing) return;
-		if (this.debugMode) console.time("Render Time");
-		this.renderer.render(this.scene, this.camera);
+    render() {
+        if (testing) return;
+        if (this.debugMode) console.time("Render Time");
+        this.renderer.render(this.scene, this.camera);
 
-		if (this.debugMode) {
-			this.printDebugInfo("Render Time");
-		}
-	}
+        if (this.debugMode) {
+            this.printDebugInfo("Render Time");
+        }
+    }
 
-	changeMap(map) {
-		// Completely reset the scene and rebuild it.
-		this.scene = new Scene();
+    changeMap(map) {
+        // Completely reset the scene and rebuild it.
+        this.scene = new Scene();
 
-		this.map = map;
+        this.map = map;
 
-		const tileSize = new Vector2(map.tileWidth, map.tileHeight);
-		const maxTileSize = Math.max(tileSize.x, tileSize.y);
-		tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
-		this.tileSize = tileSize;
+        const tileSize = new Vector2(map.tileWidth, map.tileHeight);
+        const maxTileSize = Math.max(tileSize.x, tileSize.y);
+        tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
+        this.tileSize = tileSize;
 
-		if (this._backdropEnabled) this._generateBackdrop();
+        if (this._backdropEnabled) this._generateBackdrop();
 
-		this.loadTilesets();
-		this._updateLayers();
-	}
+        this.loadTilesets();
+        this._updateLayers();
+    }
 
-	loadTilesets() {
-		this._tilesets = [];
-		for (let i = 0; i < this.map.tilesets.length; i++) {
-			RenderTileset.load(this.map.tilesets[i], this)
-				.then(renderTileset => {
-					this._tilesets[i] = renderTileset;
-					this.update();
-				}, e => {
-					throw e;
-				});
-		}
-	}
+    loadTilesets() {
+        this._tilesets = [];
+        for (let i = 0; i < this.map.tilesets.length; i++) {
+            RenderTileset.load(this.map.tilesets[i], this)
+                .then(renderTileset => {
+                    this._tilesets[i] = renderTileset;
+                    this.update();
+                }, e => {
+                    throw e;
+                });
+        }
+    }
 
-	getTileset(id) {
-		return this._tilesets[id];
-	}
+    getTileset(id) {
+        return this._tilesets[id];
+    }
 
-	unprojectToTilePosition(position, includeDecimals) {
-		const normalizedPosition = this._normalizePosition(position);
+    unprojectToTilePosition(position, includeDecimals) {
+        const normalizedPosition = this._normalizePosition(position);
 
-		normalizedPosition.unproject(this.camera);
-		normalizedPosition.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1));
+        normalizedPosition.unproject(this.camera);
+        normalizedPosition.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1));
 
-		const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
-		if (!includeDecimals) {
-			tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));
-		}
+        const tilePosition = new Vector2(normalizedPosition.x, normalizedPosition.y);
+        if (!includeDecimals) {
+            tilePosition.set(Math.floor(tilePosition.x), Math.floor(tilePosition.y));
+        }
 
-		return tilePosition;
-	}
+        return tilePosition;
+    }
 
-	getTile(x, y, layerId) {
-		return this._layers[layerId].getTile(x, y);
-	}
+    getTile(x, y, layerId) {
+        return this._layers[layerId].getTile(x, y);
+    }
 
-	getObjectInformationAtMouse(mousePosition) {
-		const normalizedPosition = this._normalizePosition(mousePosition);
+    getObjectInformationAtMouse(mousePosition) {
+        const normalizedPosition = this._normalizePosition(mousePosition);
 
-		this._raycaster.setFromCamera(normalizedPosition, this.camera);
-		const intersects = this._raycaster.intersectObjects(this._objects);
+        this._raycaster.setFromCamera(normalizedPosition, this.camera);
+        const intersects = this._raycaster.intersectObjects(this._objects);
 
-		if (intersects.length <= 0) return null;
+        if (intersects.length <= 0) return null;
 
-		const intersection = intersects[0];
-		const position = intersection.point
-			.sub(intersection.object.getWorldPosition()) // Local position
-			.divide(new Vector3(this.tileSize.x, this.tileSize.y, 1)); // Tile position
-		return {
-			object: intersection.object.mapObject,
-			position
-		};
-	}
+        const intersection = intersects[0];
+        const position = intersection.point
+            .sub(intersection.object.getWorldPosition()) // Local position
+            .divide(new Vector3(this.tileSize.x, this.tileSize.y, 1)); // Tile position
+        return {
+            object: intersection.object.mapObject,
+            position
+        };
+    }
 
-	_normalizePosition(position) {
-		const normalizedPosition = new Vector3();
-		normalizedPosition.x = (position.x / this.width) * 2 - 1;
-		normalizedPosition.y = -(position.y / this.height) * 2 + 1;
-		normalizedPosition.z = 0;
+    _normalizePosition(position) {
+        const normalizedPosition = new Vector3();
+        normalizedPosition.x = (position.x / this.width) * 2 - 1;
+        normalizedPosition.y = -(position.y / this.height) * 2 + 1;
+        normalizedPosition.z = 0;
 
-		return normalizedPosition;
-	}
+        return normalizedPosition;
+    }
 
-	_generateBackdrop() {
-		const width = this.tileSize.x * this.map.width;
-		const height = this.tileSize.y * this.map.height;
+    _generateBackdrop() {
+        const width = this.tileSize.x * this.map.width;
+        const height = this.tileSize.y * this.map.height;
 
-		const baseGeometry = new BoxGeometry(width, height, 1);
-		const baseMaterial = new MeshBasicMaterial({ color: 0x212121 });
-		this._baseMesh = new Mesh(baseGeometry, baseMaterial);
-		this._baseMesh.translateX(width / 2);
-		this._baseMesh.translateY(height / 2);
-		this.scene.add(this._baseMesh);
-	}
+        const baseGeometry = new BoxGeometry(width, height, 1);
+        const baseMaterial = new MeshBasicMaterial({ color: 0x212121 });
+        this._baseMesh = new Mesh(baseGeometry, baseMaterial);
+        this._baseMesh.translateX(width / 2);
+        this._baseMesh.translateY(height / 2);
+        this.scene.add(this._baseMesh);
+    }
 
-	_updateCanvasSize() {
-		this._currentWidth = this._canvas.offsetWidth;
-		this._currentHeight = this._canvas.offsetHeight;
-	}
+    _updateCanvasSize() {
+        this._currentWidth = this._canvas.offsetWidth;
+        this._currentHeight = this._canvas.offsetHeight;
+    }
 
-	_updateSize(width, height) {
-		if (!testing) {
-			this.renderer.setSize(width, height);
-		} else {
-			this._canvas.style.width = width;
-			this._canvas.style.height = height;
-			this._canvas.width = width;
-			this._canvas.height = height;
-		}
-		this.camera.right = width / height * CAMERA_UNIT;
-	}
+    _updateSize(width, height) {
+        if (!testing) {
+            this.renderer.setSize(width, height);
+        } else {
+            this._canvas.style.width = width;
+            this._canvas.style.height = height;
+            this._canvas.width = width;
+            this._canvas.height = height;
+        }
+        this.camera.right = width / height * CAMERA_UNIT;
+    }
 
-	_updateLayers() {
-		this._layers.forEach(layer => {
-			this.scene.remove(layer);
-		});
+    _updateLayers() {
+        this._layers.forEach(layer => {
+            this.scene.remove(layer);
+        });
 
-		this._layers = this.map.layers.map(layer => {
-			const renderLayer = new RenderLayer(this, layer);
-			this.scene.add(renderLayer);
-			return renderLayer;
-		});
-	}
+        this._layers = this.map.layers.map(layer => {
+            const renderLayer = new RenderLayer(this, layer);
+            this.scene.add(renderLayer);
+            return renderLayer;
+        });
+    }
 
-	_updateObjects() {
-		this._objects.forEach(object => {
-			this.scene.remove(object);
-		});
+    _updateObjects() {
+        this._objects.forEach(object => {
+            this.scene.remove(object);
+        });
 
-		this._objects = this.map.objects.map(object => {
-			const renderMapObject = new RenderMapObject(this, object);
-			this.scene.add(renderMapObject);
-			return renderMapObject;
-		});
-	}
+        this._objects = this.map.objects.map(object => {
+            const renderMapObject = new RenderMapObject(this, object);
+            this.scene.add(renderMapObject);
+            return renderMapObject;
+        });
+    }
 
-	printDebugInfo(consoleTimer) {
-		console.group("Render info");
-		console.log("Draw Calls: " + this.renderer.info.render.calls);
-		console.log("Vertex Count: " + this.renderer.info.render.vertices);
-		console.log("Face Count: " + this.renderer.info.render.faces);
-		console.log("---");
-		console.log("Textures Count: " + this.renderer.info.memory.textures);
-		console.log("Shader Program Count: " + this.renderer.info.programs.length);
-		if (consoleTimer) {
-			console.log("---");
-			console.timeEnd(consoleTimer);
-		}
-		console.groupEnd();
-	}
+    printDebugInfo(consoleTimer) {
+        console.group("Render info");
+        console.log("Draw Calls: " + this.renderer.info.render.calls);
+        console.log("Vertex Count: " + this.renderer.info.render.vertices);
+        console.log("Face Count: " + this.renderer.info.render.faces);
+        console.log("---");
+        console.log("Textures Count: " + this.renderer.info.memory.textures);
+        console.log("Shader Program Count: " + this.renderer.info.programs.length);
+        if (consoleTimer) {
+            console.log("---");
+            console.timeEnd(consoleTimer);
+        }
+        console.groupEnd();
+    }
 }

@@ -1,110 +1,110 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>dtile-three-renderer demo</title>
+    <head>
+        <meta charset="utf-8">
+        <title>dtile-three-renderer demo</title>
 
-		<style>
-			html, body {
-				margin: 0;
-				padding: 0;
-				width: 100%;
-				height: 100%;
-				overflow: hidden;
-			}
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
 
-			canvas {
-				width: 100%;
-				height: 100%;
-			}
-		</style>
-	</head>
-	<body>
-		<canvas></canvas>
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas></canvas>
 
-		<script src="../out/js/build.js"></script>
-		<!-- Importing dtile-tilemap to create an example map -->
-		<script src="../node_modules/dtile-tilemap/out/js/build.js"></script>
-		<script>
-			const renderer = new dtileThreeRenderer.Renderer(document.querySelector("canvas"));
+        <script src="../out/js/build.js"></script>
+        <!-- Importing dtile-tilemap to create an example map -->
+        <script src="../node_modules/dtile-tilemap/out/js/build.js"></script>
+        <script>
+            const renderer = new dtileThreeRenderer.Renderer(document.querySelector("canvas"));
 
-			window.tilemap = new dtileTilemap.TileMap({
-				width: 3,
-				height: 3,
-				tileWidth: 16,
-				tileHeight: 16,
+            window.tilemap = new dtileTilemap.TileMap({
+                width: 3,
+                height: 3,
+                tileWidth: 16,
+                tileHeight: 16,
 
-				layers: [
-					{
-						tiles: [
-							"0:0", "1:0", "2:0",
-							"4:0", "5:0", "6:0",
-							"8:0", "9:0", "10:0"
-						]
-					},
-					{
-						tiles: [
-							"-1:0", "3:0", "-1:0",
-							"0:1", "1:1", "7:0",
-							"2:1", "3:1", "-1:0",
-						]
-					}
-				],
+                layers: [
+                    {
+                        tiles: [
+                            "0:0", "1:0", "2:0",
+                            "4:0", "5:0", "6:0",
+                            "8:0", "9:0", "10:0"
+                        ]
+                    },
+                    {
+                        tiles: [
+                            "-1:0", "3:0", "-1:0",
+                            "0:1", "1:1", "7:0",
+                            "2:1", "3:1", "-1:0",
+                        ]
+                    }
+                ],
 
-				tilesets: [
-					{
-						path: "demo/demo.png",
-						type: "image"
-					},
-					{
-						path: "demo/demo2.png",
-						type: "image"
-					}
-				]
-			});
+                tilesets: [
+                    {
+                        path: "demo/demo.png",
+                        type: "image"
+                    },
+                    {
+                        path: "demo/demo2.png",
+                        type: "image"
+                    }
+                ]
+            });
 
-			renderer.changeMap(tilemap);
+            renderer.changeMap(tilemap);
 
-			window.addEventListener("resize", () => {
-				renderer.update({ camera: true, size: [window.innerWidth, window.innerHeight] });
-			});
-			window.addEventListener("click", e => {
-				const pos = renderer.getTileAtMouse({ x: e.clientX, y: e.clientY }, 1);
-				if (!pos) return;
-				const tile = tilemap.layers[1].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
-				if (tile) tile.tileId = -1;
-				renderer.update({ tiles: true });
-			});
-			let awaitingRender = false;
-			window.addEventListener("wheel", e => {
-				e.preventDefault();
-				e.stopPropagation();
+            window.addEventListener("resize", () => {
+                renderer.update({ camera: true, size: [window.innerWidth, window.innerHeight] });
+            });
+            window.addEventListener("click", e => {
+                const pos = renderer.getTileAtMouse({ x: e.clientX, y: e.clientY }, 1);
+                if (!pos) return;
+                const tile = tilemap.layers[1].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
+                if (tile) tile.tileId = -1;
+                renderer.update({ tiles: true });
+            });
+            let awaitingRender = false;
+            window.addEventListener("wheel", e => {
+                e.preventDefault();
+                e.stopPropagation();
 
-				if (e.ctrlKey) {
-					const oldZoom = renderer.camera.zoom;
-					const newZoom = oldZoom + oldZoom * (e.deltaY * -0.005);
-					renderer.camera.zoom = Math.max(Math.min(75, newZoom), 0.01);
-				} else {
-					renderer.camera.position.add({
-						x: e.deltaX * 0.05,
-						y: e.deltaY * 0.05,
-						z: 0
-					});
-				}
-				if (!awaitingRender) {
-					awaitingRender = true;
-					requestAnimationFrame(() => {
-						renderer.update({ camera: true });
-						awaitingRender = false;
-					});
-				}
-			});
-			window.addEventListener("keydown", e => {
-				if (e.key === "o") {
-					renderer.outlineEnabled = !renderer.outlineEnabled;
-					renderer.update({ tiles: true });
-				}
-			});
-		</script>
-	</body>
+                if (e.ctrlKey) {
+                    const oldZoom = renderer.camera.zoom;
+                    const newZoom = oldZoom + oldZoom * (e.deltaY * -0.005);
+                    renderer.camera.zoom = Math.max(Math.min(75, newZoom), 0.01);
+                } else {
+                    renderer.camera.position.add({
+                        x: e.deltaX * 0.05,
+                        y: e.deltaY * 0.05,
+                        z: 0
+                    });
+                }
+                if (!awaitingRender) {
+                    awaitingRender = true;
+                    requestAnimationFrame(() => {
+                        renderer.update({ camera: true });
+                        awaitingRender = false;
+                    });
+                }
+            });
+            window.addEventListener("keydown", e => {
+                if (e.key === "o") {
+                    renderer.outlineEnabled = !renderer.outlineEnabled;
+                    renderer.update({ tiles: true });
+                }
+            });
+        </script>
+    </body>
 </html>

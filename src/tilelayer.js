@@ -30,11 +30,10 @@ const material = new ShaderMaterial({
 const outlineWidth = 1;
 
 export class RenderLayer extends Object3D {
-    constructor(renderer, tilelayer) {
+    constructor(renderer) {
         super();
 
         this._renderer = renderer;
-        this._tilelayer = tilelayer;
         this._tiles = [];
 
         this._tilesetMeshes = new Map();
@@ -50,24 +49,22 @@ export class RenderLayer extends Object3D {
 
         for (let y = 0; y < mapHeight; y++) {
             for (let x = 0; x < mapWidth; x++) {
-                const index = y * mapWidth + x,
-                    tile = new RenderTile(x, y,
-                        this._tilelayer.tiles[index], this._renderer);
+                const tile = new RenderTile(x, y, this._renderer);
 
-                this._tiles[index] = tile;
+                this._tiles[y * mapWidth + x] = tile;
             }
         }
     }
 
-    update() {
+    update(layer) {
         const tilesetsFound = new Set();
-        for (let tile of this._tiles) {
-            tile.update();
+        this._tiles.forEach((tile, i) => {
+            tile.update(layer.tiles[i]);
             const tilesetId = tile.currentTilesetId;
             if (tilesetId >= 0) {
                 tilesetsFound.add(tilesetId);
             }
-        }
+        });
 
         this._tilesetMeshes.forEach((mesh, meshId) => {
             let exist = tilesetsFound.has(meshId);
@@ -154,10 +151,6 @@ export class RenderLayer extends Object3D {
             attributes.color.needsUpdate = true;
             attributes.opacity.needsUpdate = true;
         });
-    }
-
-    getTile(x, y) {
-        return this._tiles[x + y * this._renderer.map.width];
     }
 
     _updateMeshUniforms(mesh) {

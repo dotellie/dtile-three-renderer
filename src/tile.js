@@ -3,10 +3,9 @@ import {
 } from "three";
 
 export class RenderTile {
-    constructor(x, y, tile, renderer) {
+    constructor(x, y, renderer) {
         this.uvs = [];
 
-        this._tile = tile;
         this._renderer = renderer;
 
         this.currentId = -1;
@@ -26,7 +25,12 @@ export class RenderTile {
             this.currentTilesetId !== this._lastTile.tilesetId;
     }
 
-    update() {
+    update(tile) {
+        if (tile !== this._tile) {
+            this._lastTile = this._tile;
+            this._tile = tile;
+        }
+
         this.currentId = this._ghost ? this._ghost.tileId : this._tile.tileId;
         this.currentTilesetId = this._ghost ? this._ghost.tilesetId : this._tile.tilesetId;
 
@@ -36,7 +40,6 @@ export class RenderTile {
 
             this.uvs = tileset.getTileUvs(this.currentId);
 
-            this._lastTile = { tileId: this.currentId, tilesetId: this.currentTilesetId };
             this.triRenderCount = 0;
         }
     }

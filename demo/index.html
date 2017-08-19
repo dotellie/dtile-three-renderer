@@ -60,7 +60,8 @@
                 }
             };
 
-            renderer.changeMap(tilemap, tilesets);
+            renderer.updateTilesets(tilesets);
+            renderer.updateMap(tilemap);
 
             window.addEventListener("resize", () => {
                 renderer.update(["camera", "size"]);
@@ -68,9 +69,26 @@
             window.addEventListener("click", e => {
                 const pos = renderer.unprojectToTilePosition({ x: e.clientX, y: e.clientY }, 1);
                 if (!pos) return;
-                const tile = tilemap.layers[1].tiles[parseInt(pos.y) * 3 + parseInt(pos.x)];
-                if (tile) tile.tileId = -1;
-                renderer.update(["tiles"]);
+                // Very convoluted example to demonstrate it handling immutability.
+                window.tilemap = {
+                    ...window.tilemap,
+                    layers: window.tilemap.layers.map((layer, i) => {
+                        if (i === 1) {
+                            return {
+                                ...layer,
+                                tiles: layer.tiles.map((tile, i) => {
+                                    if (i === parseInt(pos.y) * 3 + parseInt(pos.x)) {
+                                        return {
+                                            tileId: -1,
+                                            tilesetId: -1
+                                        }
+                                    } else return tile;
+                                })
+                            }
+                        } else return layer;
+                    })
+                }
+                renderer.updateMap(tilemap);
             });
             let awaitingRender = false;
             window.addEventListener("wheel", e => {

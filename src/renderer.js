@@ -7,6 +7,8 @@ import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 import { RenderMapObject } from "./mapObject";
 
+import { cmp } from "./utils.js";
+
 export const CAMERA_UNIT = 10;
 export const TILE_BASE_SIZE = 16;
 
@@ -46,6 +48,8 @@ export class Renderer {
 
         this._raycaster = new Raycaster();
 
+        this.scene = new Scene();
+
         this.update();
     }
 
@@ -72,7 +76,7 @@ export class Renderer {
         }
     }
 
-    update(shouldUpdate = ["size", "camera", "tiles"]) {
+    update(shouldUpdate = ["size", "camera"]) {
         if (this.debugMode && this.runProfile) console.profile("Update: " + shouldUpdate.join(", "));
 
         for (let toUpdate of shouldUpdate) {
@@ -81,14 +85,6 @@ export class Renderer {
                 this._updateSize(this.width, this.height);
             } else if (toUpdate === "camera") {
                 this.camera.updateProjectionMatrix();
-            } else if (toUpdate === "tiles") {
-                for (let layer of this._layers) {
-                    layer.update();
-                }
-            } else if (toUpdate === "layers") {
-                this._updateLayers();
-            } else if (toUpdate === "tilesets") {
-                this.loadTilesets();
             } else if (toUpdate === "objects") {
                 this._updateObjects();
             } else {
@@ -111,25 +107,40 @@ export class Renderer {
         }
     }
 
-    changeMap(map, tilesets) {
-        if (tilesets) {
-            this._tilesetInformations = tilesets;
-            this.loadTilesets();
-        }
-
-        // Completely reset the scene and rebuild it.
-        this.scene = new Scene();
-
+    updateMap(map) {
+        this._previousMap = this.map || {};
         this.map = map;
 
-        const tileSize = new Vector2(map.tileWidth, map.tileHeight);
-        const maxTileSize = Math.max(tileSize.x, tileSize.y);
-        tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
-        this.tileSize = tileSize;
+        const sizeChanged = !cmp(this.map, this._previousMap, ["width", "height"]);
+        const tileSizeChanged = !cmp(this.map, this._previousMap, ["tileWidth", "tileHeight"]);
 
-        if (this._backdropEnabled) this._generateBackdrop();
+        const layersChanged = !this._previousMap.layers ||
+            this.map.layers.length !== this._previousMap.layers.length;
 
-        this._updateLayers();
+        if (tileSizeChanged) {
+            const tileSize = new Vector2(map.tileWidth, map.tileHeight);
+            const maxTileSize = Math.max(tileSize.x, tileSize.y);
+            tileSize.divideScalar(maxTileSize).multiplyScalar(TILE_BASE_SIZE);
+            this.tileSize = tileSize;
+        }
+
+        if (this._backdropEnabled && sizeChanged) this._generateBackdrop();
+
+        const shouldGenerateLayers = layersChanged || sizeChanged;
+        if (shouldGenerateLayers) this._generateLayers();
+
+        this._layers.forEach((layer, i) => {
+            if (shouldGenerateLayers || tileSizeChanged || layer !== this._previousMap.layers[i]) {
+                layer.update(this.map.layers[i]);
+            }
+        });
+
+        this.render();
+    }
+
+    updateTilesets(tilesets) {
+        this._tilesetInformations = tilesets;
+        this.loadTilesets();
     }
 
     loadTilesets() {
@@ -138,7 +149,8 @@ export class Renderer {
             const tilesetInfo = this._tilesetInformations[tilesetId];
             return RenderTileset.load(tilesetInfo, this).then(renderTileset => {
                 this._tilesets[tilesetId] = renderTileset;
-                this.update();
+                this._layers.forEach((layer, i) => layer.update(this.map.layers[i]));
+                this.render();
             });
         });
     }
@@ -217,7 +229,7 @@ export class Renderer {
         this.camera.right = width / height * CAMERA_UNIT;
     }
 
-    _updateLayers() {
+    _generateLayers() {
         this._layers.forEach(layer => {
             this.scene.remove(layer);
         });

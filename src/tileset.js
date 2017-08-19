@@ -18,7 +18,7 @@ export class RenderTileset {
 
         if (tileset.type === "image") {
             return new Promise((resolve, reject) => {
-                const texture = new TextureLoader().load(tileset.virtualPath, () => {
+                const texture = new TextureLoader().load(tileset.url, () => {
                     resolveTexture(resolve, texture);
                 }, undefined, e => {
                     reject(e);

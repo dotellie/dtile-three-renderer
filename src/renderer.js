@@ -111,7 +111,12 @@ export class Renderer {
         }
     }
 
-    changeMap(map) {
+    changeMap(map, tilesets) {
+        if (tilesets) {
+            this._tilesetInformations = tilesets;
+            this.loadTilesets();
+        }
+
         // Completely reset the scene and rebuild it.
         this.scene = new Scene();
 
@@ -124,21 +129,18 @@ export class Renderer {
 
         if (this._backdropEnabled) this._generateBackdrop();
 
-        this.loadTilesets();
         this._updateLayers();
     }
 
     loadTilesets() {
-        this._tilesets = [];
-        for (let i = 0; i < this.map.tilesets.length; i++) {
-            RenderTileset.load(this.map.tilesets[i], this)
-                .then(renderTileset => {
-                    this._tilesets[i] = renderTileset;
-                    this.update();
-                }, e => {
-                    throw e;
-                });
-        }
+        this._tilesets = {};
+        Object.keys(this._tilesetInformations).forEach(tilesetId => {
+            const tilesetInfo = this._tilesetInformations[tilesetId];
+            return RenderTileset.load(tilesetInfo, this).then(renderTileset => {
+                this._tilesets[tilesetId] = renderTileset;
+                this.update();
+            });
+        });
     }
 
     getTileset(id) {
@@ -157,10 +159,6 @@ export class Renderer {
         }
 
         return tilePosition;
-    }
-
-    getTile(x, y, layerId) {
-        return this._layers[layerId].getTile(x, y);
     }
 
     getObjectInformationAtMouse(mousePosition) {

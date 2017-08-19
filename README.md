@@ -1,5 +1,7 @@
 # DTile Three Renderer
 [![Build Status](https://travis-ci.org/magnonellie/dtile-three-renderer.svg?branch=master)](https://travis-ci.org/magnonellie/dtile-three-renderer)
+[![dependencies Status](https://david-dm.org/magnonellie/dtile-three-renderer/status.svg)](https://david-dm.org/magnonellie/dtile-three-renderer)
+[![devDependencies Status](https://david-dm.org/magnonellie/dtile-three-renderer/dev-status.svg)](https://david-dm.org/magnonellie/dtile-three-renderer?type=dev)
 
 dtile-three-renderer is a renderer made with [Three.js](https://threejs.org/)
 for rendering tilemaps on the web.

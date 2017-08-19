@@ -23,12 +23,10 @@
         <canvas></canvas>
 
         <script src="../out/js/build.js"></script>
-        <!-- Importing dtile-tilemap to create an example map -->
-        <script src="../node_modules/dtile-tilemap/out/js/build.js"></script>
         <script>
             const renderer = new dtileThreeRenderer.Renderer(document.querySelector("canvas"));
 
-            window.tilemap = new dtileTilemap.TileMap({
+            window.tilemap = {
                 width: 3,
                 height: 3,
                 tileWidth: 16,
@@ -37,43 +35,42 @@
                 layers: [
                     {
                         tiles: [
-                            "0:0", "1:0", "2:0",
-                            "4:0", "5:0", "6:0",
-                            "8:0", "9:0", "10:0"
+                            { tileId: 0, tilesetId: 0 }, { tileId: 1, tilesetId: 0 }, { tileId: 2, tilesetId: 0 },
+                            { tileId: 4, tilesetId: 0 }, { tileId: 5, tilesetId: 0 }, { tileId: 6, tilesetId: 0 },
+                            { tileId: 8, tilesetId: 0 }, { tileId: 9, tilesetId: 0 }, { tileId: 10, tilesetId: 0 }
                         ]
                     },
                     {
                         tiles: [
-                            "-1:0", "3:0", "-1:0",
-                            "0:1", "1:1", "7:0",
-                            "2:1", "3:1", "-1:0",
+                            { tileId: -1, tilesetId: 0 }, { tileId: 3, tilesetId: 0 }, { tileId: -1, tilesetId: 0 },
+                            { tileId: 0, tilesetId: 1 }, { tileId: 1, tilesetId: 1 }, { tileId: 7, tilesetId: 0 },
+                            { tileId: 2, tilesetId: 1 }, { tileId: 3, tilesetId: 1 }, { tileId: -1, tilesetId: 0 },
                         ]
                     }
-                ],
-
-                tilesets: [
-                    {
-                        path: "demo/demo.png",
-                        type: "image"
-                    },
-                    {
-                        path: "demo/demo2.png",
-                        type: "image"
-                    }
                 ]
-            });
+            };
+            window.tilesets = {
+                "0": {
+                    url: "demo.png",
+                    type: "image"
+                },
+                "1": {
+                    url: "demo2.png",
+                    type: "image"
+                }
+            };
 
-            renderer.changeMap(tilemap);
+            renderer.changeMap(tilemap, tilesets);
 
             window.addEventListener("resize", () => {
-                renderer.update({ camera: true, size: [window.innerWidth, window.innerHeight] });
+                renderer.update(["camera", "size"]);
             });
             window.addEventListener("click", e => {
-                const pos = renderer.getTileAtMouse({ x: e.clientX, y: e.clientY }, 1);
+                const pos = renderer.unprojectToTilePosition({ x: e.clientX, y: e.clientY }, 1);
                 if (!pos) return;
-                const tile = tilemap.layers[1].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
+                const tile = tilemap.layers[1].tiles[parseInt(pos.y) * 3 + parseInt(pos.x)];
                 if (tile) tile.tileId = -1;
-                renderer.update({ tiles: true });
+                renderer.update(["tiles"]);
             });
             let awaitingRender = false;
             window.addEventListener("wheel", e => {
@@ -94,7 +91,7 @@
                 if (!awaitingRender) {
                     awaitingRender = true;
                     requestAnimationFrame(() => {
-                        renderer.update({ camera: true });
+                        renderer.update(["camera"]);
                         awaitingRender = false;
                     });
                 }
@@ -102,7 +99,7 @@
             window.addEventListener("keydown", e => {
                 if (e.key === "o") {
                     renderer.outlineEnabled = !renderer.outlineEnabled;
-                    renderer.update({ tiles: true });
+                    renderer.update(["tiles"]);
                 }
             });
         </script>

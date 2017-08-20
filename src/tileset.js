@@ -28,7 +28,7 @@ export class RenderTileset {
             return new Promise((resolve, reject) => {
                 const testTileset = generateTestImage(
                     25, 25,
-                    renderer.map.tileWidth, renderer.map.tileHeight
+                    tileset.tileWidth, tileset.tileHeight
                 );
 
                 const texture = new TextureLoader().load(testTileset, () => {
@@ -48,8 +48,8 @@ export class RenderTileset {
 
         const array = [];
 
-        const tileWidth = this._renderer.map.tileWidth,
-            tileHeight = this._renderer.map.tileHeight,
+        const tileWidth = this._tileset.tileWidth,
+            tileHeight = this._tileset.tileHeight,
             textureWidth = this.texture.image.width,
             textureHeight = this.texture.image.height,
             width = textureWidth / tileWidth,

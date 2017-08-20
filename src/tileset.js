@@ -16,7 +16,7 @@ export class RenderTileset {
             resolve(new RenderTileset(tileset, texture, renderer));
         };
 
-        if (tileset.type === "image") {
+        if (tileset.tilesetType === "image") {
             return new Promise((resolve, reject) => {
                 const texture = new TextureLoader().load(tileset.url, () => {
                     resolveTexture(resolve, texture);
@@ -24,7 +24,7 @@ export class RenderTileset {
                     reject(e);
                 });
             });
-        } else if (tileset.type === "test") {
+        } else if (tileset.tilesetType === "test") {
             return new Promise((resolve, reject) => {
                 const testTileset = generateTestImage(
                     25, 25,

@@ -18,7 +18,6 @@ export function deepEql(object1, object2) {
 
     if (type1 !== "object") return object1 === object2;
     else {
-        console.log("checking object");
         let equal = true;
         for (let key in object1) {
             if (!deepEql(object1[key], object2[key])) {

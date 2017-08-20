@@ -10,3 +10,22 @@ export function cmp(object1, object2, properties) {
 
     return same;
 }
+
+export function deepEql(object1, object2) {
+    const type1 = typeof object1;
+    const type2 = typeof object2;
+    if (type1 !== type2) return false;
+
+    if (type1 !== "object") return object1 === object2;
+    else {
+        console.log("checking object");
+        let equal = true;
+        for (let key in object1) {
+            if (!deepEql(object1[key], object2[key])) {
+                equal = false;
+                break;
+            }
+        }
+        return equal;
+    }
+}

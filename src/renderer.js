@@ -7,7 +7,7 @@ import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 import { RenderMapObject } from "./mapObject";
 
-import { cmp } from "./utils.js";
+import { cmp, deepEql } from "./utils.js";
 
 export const CAMERA_UNIT = 10;
 export const TILE_BASE_SIZE = 16;
@@ -139,6 +139,7 @@ export class Renderer {
     }
 
     updateTilesets(tilesets) {
+        if (deepEql(tilesets, this._tilesetInformations)) return;
         this._tilesetInformations = tilesets;
         this.loadTilesets();
     }

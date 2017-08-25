@@ -85,6 +85,8 @@ export class Renderer {
                 this._updateSize(this.width, this.height);
             } else if (toUpdate === "camera") {
                 this.camera.updateProjectionMatrix();
+            } else if (toUpdate === "tiles") {
+                this._layers.forEach((layer, i) => layer.update(this.map.layers[i]));
             } else if (toUpdate === "objects") {
                 this._updateObjects();
             } else {
@@ -190,6 +192,10 @@ export class Renderer {
             object: intersection.object.mapObject,
             position
         };
+    }
+
+    getLayer(index) {
+        return this._layers[index];
     }
 
     _normalizePosition(position) {

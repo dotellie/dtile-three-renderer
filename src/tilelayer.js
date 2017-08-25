@@ -153,6 +153,10 @@ export class RenderLayer extends Object3D {
         });
     }
 
+    getTile(x, y) {
+        return this._tiles[y * this._renderer.map.width + x];
+    }
+
     _updateMeshUniforms(mesh) {
         const uniforms = mesh.material.uniforms;
         uniforms.tileSize.value = this._renderer.tileSize;

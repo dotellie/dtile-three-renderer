@@ -27,6 +27,7 @@ export class RenderTileset {
         } else if (tileset.tilesetType === "test") {
             return new Promise((resolve, reject) => {
                 const testTileset = generateTestImage(
+                    tileset.name || "a",
                     25, 25,
                     tileset.tileWidth, tileset.tileHeight
                 );
@@ -76,16 +77,18 @@ function makeTrisFromQuad(quad) {
     ];
 }
 
-function generateTestImage(width, height, tileWidth, tileHeight) {
+function generateTestImage(seed, width, height, tileWidth, tileHeight) {
     const canvas = document.createElement("canvas");
     canvas.width = width * tileWidth;
     canvas.height = height * tileHeight;
     const context = canvas.getContext("2d");
 
+    randomSeed = seed.split("").reduce((acc, string) => acc + string.charCodeAt(0), 0);
+
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             context.fillStyle = "#" + ("000000" +
-                (Math.floor(Math.random() * 0xffffff))).substr(-6);
+                (Math.floor(random() * 0xffffff))).substr(-6);
             context.fillRect(
                 x * tileWidth, y * tileHeight,
                 (x + 1) * tileWidth, (y + 1) * tileHeight
@@ -94,4 +97,11 @@ function generateTestImage(width, height, tileWidth, tileHeight) {
     }
 
     return canvas.toDataURL();
+}
+
+let randomSeed = 0;
+
+function random() {
+    const x = Math.sin(randomSeed++) * 10000;
+    return x - Math.floor(x);
 }

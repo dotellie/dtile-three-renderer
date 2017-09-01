@@ -50,12 +50,16 @@ export class RenderTile {
     }
 
     setGhost(tile) {
-        this._ghost = tile;
         const tileDifference = tile &&
             (tile.tileId !== this._tile.tileId ||
             tile.tilesetId !== this._tile.tilesetId);
-        this.opacity = tileDifference ? 0.8 : 1;
-        this.resetRenderCount();
+
+        this.opacity = (tile && tileDifference) ? 0.8 : 1;
+        if ((!tile && this._ghost) ||
+            tile && (this.currentId !== tile.tileId || this.currentTilesetId !== tile.tilesetId)) {
+            this.resetRenderCount();
+        }
+        this._ghost = tile;
     }
 
     resetRenderCount() {

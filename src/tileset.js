@@ -16,7 +16,7 @@ export class RenderTileset {
             resolve(new RenderTileset(tileset, texture, renderer));
         };
 
-        if (tileset.tilesetType === "image") {
+        if (tileset.tilesetType === "ortho") {
             return new Promise((resolve, reject) => {
                 const texture = new TextureLoader().load(tileset.url, () => {
                     resolveTexture(resolve, texture);

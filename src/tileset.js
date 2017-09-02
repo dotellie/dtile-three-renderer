@@ -38,6 +38,8 @@ export class RenderTileset {
                     reject(e);
                 });
             });
+        } else {
+            console.error(`Unknown tileset type ${tileset.tilesetType}`);
         }
     }
 

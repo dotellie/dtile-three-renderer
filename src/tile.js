@@ -2,6 +2,9 @@ import {
     Color
 } from "three";
 
+export let tilesUpdated = 0;
+export const resetTilesUpdated = () => (tilesUpdated = 0);
+
 export class RenderTile {
     constructor(x, y, renderer) {
         this.uvs = [];
@@ -35,6 +38,8 @@ export class RenderTile {
         this.currentTilesetId = this._ghost ? this._ghost.tilesetId : this._tile.tilesetId;
 
         if (this.needsUpdate) {
+            tilesUpdated++;
+
             const tileset = this._renderer.getTileset(this.currentTilesetId);
             if (!tileset) return;
 

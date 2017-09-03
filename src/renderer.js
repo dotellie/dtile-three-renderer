@@ -7,6 +7,8 @@ import { RenderLayer } from "./tilelayer";
 import { RenderTileset } from "./tileset";
 import { RenderMapObject } from "./mapObject";
 
+import { tilesUpdated, resetTilesUpdated } from "./tile.js";
+
 import { cmp, deepEql } from "./utils.js";
 
 export const CAMERA_UNIT = 10;
@@ -262,16 +264,22 @@ export class Renderer {
 
     printDebugInfo(consoleTimer) {
         console.group("Render info");
-        console.log("Draw Calls: " + this.renderer.info.render.calls);
-        console.log("Vertex Count: " + this.renderer.info.render.vertices);
-        console.log("Face Count: " + this.renderer.info.render.faces);
-        console.log("---");
-        console.log("Textures Count: " + this.renderer.info.memory.textures);
-        console.log("Shader Program Count: " + this.renderer.info.programs.length);
+        console.log(`
+            Draw Calls: ${this.renderer.info.render.calls}
+            Vertex Count: ${this.renderer.info.render.vertices}
+            Face Count: ${this.renderer.info.render.faces}
+            ---
+            Textures Count: ${this.renderer.info.memory.textures}
+            Shader Program Count: ${this.renderer.info.programs.length}
+            ---
+            Tiles Updated: ${tilesUpdated}
+        `.replace(/[ ]{2,}/g, "").trim());
         if (consoleTimer) {
             console.log("---");
             console.timeEnd(consoleTimer);
         }
         console.groupEnd();
+
+        resetTilesUpdated();
     }
 }

@@ -200,6 +200,12 @@ export class Renderer {
         return this._layers[index];
     }
 
+    setGhosts(ghostArray) {
+        this._layers.forEach((layer, i) => {
+            layer.setGhosts(ghostArray[i]);
+        });
+    }
+
     _normalizePosition(position) {
         const normalizedPosition = new Vector3();
         normalizedPosition.x = (position.x / this.width) * 2 - 1;

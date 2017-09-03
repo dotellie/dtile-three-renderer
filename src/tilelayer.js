@@ -49,9 +49,7 @@ export class RenderLayer extends Object3D {
 
         for (let y = 0; y < mapHeight; y++) {
             for (let x = 0; x < mapWidth; x++) {
-                const tile = new RenderTile(x, y, this._renderer);
-
-                this._tiles[y * mapWidth + x] = tile;
+                this._tiles[y * mapWidth + x] = new RenderTile(this._renderer);
             }
         }
     }
@@ -60,7 +58,7 @@ export class RenderLayer extends Object3D {
         const tilesetsFound = new Set();
         this._tiles.forEach((tile, i) => {
             tile.update(layer.tiles[i]);
-            const tilesetId = tile.currentTilesetId;
+            const tilesetId = tile.currentTile.tilesetId;
             if (tilesetId >= 0) {
                 tilesetsFound.add(tilesetId);
             }
@@ -127,7 +125,7 @@ export class RenderLayer extends Object3D {
             for (let i = 0; i < faces; i++) {
                 const tileObject = this._tiles[Math.floor(i * 0.5)];
 
-                const { currentId: tileId, currentTilesetId: tilesetId,
+                const { currentTile: { tileId, tilesetId },
                     tint, opacity: tileOpacity, uvs } = tileObject;
 
                 if (tilesetId === meshTilesetId && tileId >= 0 && uvs.length > 0) {
@@ -159,6 +157,12 @@ export class RenderLayer extends Object3D {
 
     getTileByIndex(index) {
         return this._tiles[index];
+    }
+
+    setGhosts(ghostArray = []) {
+        this._tiles.forEach((tile, i) => {
+            tile.ghost = ghostArray[i];
+        });
     }
 
     _updateMeshUniforms(mesh) {

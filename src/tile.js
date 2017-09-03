@@ -6,68 +6,58 @@ export let tilesUpdated = 0;
 export const resetTilesUpdated = () => (tilesUpdated = 0);
 
 export class RenderTile {
-    constructor(x, y, renderer) {
-        this.uvs = [];
-
+    constructor(renderer) {
         this._renderer = renderer;
 
-        this.currentId = -1;
-        this.currentTilesetId = -1;
+        this._triUpdatedCount = 0;
+        this._previousState = null;
 
-        this._ghost = null;
+        this.tint = false;
+        this._previousTint = {};
 
-        this.tint = new Color(0x000000);
-        this.opacity = 1;
-
-        this.triRenderCount = 0;
+        this.uvs = [];
     }
 
-    get needsUpdate() {
-        return !this._lastTile ||
-            this.currentId !== this._lastTile.tileId ||
-            this.currentTilesetId !== this._lastTile.tilesetId;
+    set tint(tint) {
+        if (tint instanceof Color) this._tint = tint;
+        else this._tint = new Color(tint || 0x000000);
     }
+    get tint() { return this._tint; }
 
     update(tile) {
-        if (tile !== this._tile) {
-            this._lastTile = this._tile;
-            this._tile = tile;
-        }
+        this._tile = tile;
 
-        this.currentId = this._ghost ? this._ghost.tileId : this._tile.tileId;
-        this.currentTilesetId = this._ghost ? this._ghost.tilesetId : this._tile.tilesetId;
+        const ghostDefined = this.ghost &&
+            this.ghost.tileId >= 0 && this.ghost.tilesetId >= 0;
 
-        if (this.needsUpdate) {
+        this.currentTile = {
+            tileId: ghostDefined ? this.ghost.tileId : this._tile.tileId,
+            tilesetId: ghostDefined ? this.ghost.tilesetId : this._tile.tilesetId
+        };
+
+        this.opacity = !this.ghost || tileEqual(this.ghost, this._tile) ? 1 : 0.8;
+
+        const sameTile = tileEqual(this.currentTile, this._previousTile);
+        const sameOpacity = this.opacity === this._previousOpacity;
+        const sameTint = this.tint.equals(this._previousTint);
+
+        if (!sameTile || (!this._hasTileset && this.currentTile.tilesetId >= 0)) {
             tilesUpdated++;
 
-            const tileset = this._renderer.getTileset(this.currentTilesetId);
-            if (!tileset) return;
-
-            this.uvs = tileset.getTileUvs(this.currentId);
-
-            this.triRenderCount = 0;
+            const tileset = this._renderer.getTileset(this.currentTile.tilesetId);
+            if (tileset) {
+                this.uvs = tileset.getTileUvs(this.currentTile.tileId);
+                this._hasTileset = true;
+            } else this._hasTileset = false;
         }
-    }
 
-    setTint(tint) {
-        this.tint = new Color(tint || 0x000000);
-        this.resetRenderCount();
-    }
+        if (!sameTile || !sameOpacity || !sameTint) this.triRenderCount = 0;
 
-    setGhost(tile) {
-        const tileDifference = tile &&
-            (tile.tileId !== this._tile.tileId ||
-            tile.tilesetId !== this._tile.tilesetId);
-
-        this.opacity = (tile && tileDifference) ? 0.8 : 1;
-        if ((!tile && this._ghost) ||
-            tile && (this.currentId !== tile.tileId || this.currentTilesetId !== tile.tilesetId)) {
-            this.resetRenderCount();
-        }
-        this._ghost = tile;
-    }
-
-    resetRenderCount() {
-        this.triRenderCount = 0;
+        this._previousTile = this.currentTile;
+        this._previousOpacity = this.opacity;
+        this._previousTint = this.tint;
     }
 }
+
+const tileEqual = (tile1 = {}, tile2 = {}) =>
+    tile1.tileId === tile2.tileId && tile1.tilesetId === tile2.tilesetId;

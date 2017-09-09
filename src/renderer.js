@@ -139,6 +139,8 @@ export class Renderer {
             }
         });
 
+        if (this.map.objects) this._updateObjects();
+
         this.render();
     }
 
@@ -258,13 +260,17 @@ export class Renderer {
 
     _updateObjects() {
         this._objects.forEach(object => {
-            this.scene.remove(object);
+            if (!this.map.objects.find(o => o === object.mapObject)) {
+                this.scene.remove(object);
+            }
         });
 
-        this._objects = this.map.objects.map(object => {
-            const renderMapObject = new RenderMapObject(this, object);
-            this.scene.add(renderMapObject);
-            return renderMapObject;
+        this.map.objects.forEach(object => {
+            if (!this._objects.find(o => o.mapObject === object)) {
+                const renderMapObject = new RenderMapObject(this, object);
+                this.scene.add(renderMapObject);
+                this._objects.push(renderMapObject);
+            }
         });
     }
 

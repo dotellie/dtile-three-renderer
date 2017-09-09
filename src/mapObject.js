@@ -1,8 +1,8 @@
 import {
-    Mesh, MeshBasicMaterial, BoxGeometry, CanvasTexture, LinearFilter
+    Mesh, MeshBasicMaterial, BoxGeometry
 } from "three";
 
-const material = new MeshBasicMaterial({ transparent: true });
+const material = new MeshBasicMaterial({ transparent: true, opacity: 0.5, color: 0x00e5ff });
 
 export class RenderMapObject extends Mesh {
     constructor(renderer, object) {
@@ -19,8 +19,6 @@ export class RenderMapObject extends Mesh {
 
         this.position.set(x, y, 1);
 
-        this.material.map = generateTexture("rgba(255, 61, 0, 0.5)", object.name, width * 4, height * 4);
-
         this._renderer = renderer;
         this._object = object;
     }
@@ -28,24 +26,4 @@ export class RenderMapObject extends Mesh {
     get mapObject() {
         return this._object;
     }
-}
-
-function generateTexture(color, text, width, height, font = "15px Arial") {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.font = font;
-    ctx.textBaseline = "top";
-    ctx.fillStyle = "white";
-    ctx.fillText(text, 10, 10, width - 20);
-
-    const texture = new CanvasTexture(canvas);
-    texture.minFilter = LinearFilter;
-    return texture;
 }

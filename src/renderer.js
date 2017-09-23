@@ -45,7 +45,6 @@ export class Renderer {
         this._tilesets = [];
         this._objects = [];
 
-        this.outlineEnabled = false;
         this._backdropEnabled = backdrop;
 
         this._raycaster = new Raycaster();
@@ -76,6 +75,12 @@ export class Renderer {
             this.scene.remove(this._baseMesh);
             this._baseMesh = null;
         }
+    }
+
+    set outlineEnabled(enabled) {
+        this._layers.forEach((layer, i) => {
+            layer.showOutline = enabled && i === this._layers.length - 1;
+        });
     }
 
     update(shouldUpdate = ["size", "camera"]) {
@@ -252,7 +257,7 @@ export class Renderer {
         });
 
         this._layers = this.map.layers.map(layer => {
-            const renderLayer = new RenderLayer(this, layer);
+            const renderLayer = new RenderLayer(this);
             this.scene.add(renderLayer);
             return renderLayer;
         });

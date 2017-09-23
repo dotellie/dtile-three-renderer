@@ -27,7 +27,7 @@ const material = new ShaderMaterial({
     vertexColors: FaceColors
 });
 
-const outlineWidth = 1;
+const outlineWidth = 0.8;
 
 export class RenderLayer extends Object3D {
     constructor(renderer) {
@@ -115,7 +115,6 @@ export class RenderLayer extends Object3D {
     updateMeshes() {
         this._tilesetMeshes.forEach((mesh, meshTilesetId) => {
             const attributes = mesh.geometry.attributes;
-            const noColor = new Color(0x000000);
             const noUv = new Vector2(-1, -1);
 
             let offset2 = 0, offset3 = 0;
@@ -136,7 +135,7 @@ export class RenderLayer extends Object3D {
                     }
                 } else {
                     setAttributesForFace(attributes, offset2, offset3, i,
-                        1, [noUv, noUv, noUv], noColor);
+                        1, [noUv, noUv, noUv], tint);
                 }
 
                 offset2 = offset2 + 6;
@@ -168,7 +167,7 @@ export class RenderLayer extends Object3D {
     _updateMeshUniforms(mesh) {
         const uniforms = mesh.material.uniforms;
         uniforms.tileSize.value = this._renderer.tileSize;
-        uniforms.lineWidth.value = this._renderer.outlineEnabled ? outlineWidth : 0;
+        uniforms.lineWidth.value = this.showOutline ? outlineWidth : 0;
     }
 }
 

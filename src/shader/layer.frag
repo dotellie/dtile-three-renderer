@@ -36,6 +36,7 @@ vec4 line() {
 void main() {
     vec4 textureColor = texture2D(texture, uvFinal);
     textureColor.a *= vertexOpacity;
+    textureColor.a *= uvFinal.x + uvFinal.y < -1.0 ? 0.0 : 1.0;
 
     vec4 firstColor = normalBlend(textureColor, line());
     vec4 secondColor = vec4(vertexColor, vertexColorOpacity);

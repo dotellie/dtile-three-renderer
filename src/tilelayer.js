@@ -1,6 +1,6 @@
 import {
     Object3D, Mesh, DoubleSide, BufferAttribute, BufferGeometry,
-    ShaderMaterial, FaceColors, Vector2, Color
+    ShaderMaterial, FaceColors, Vector2
 } from "three";
 
 import { TileGeometry } from "./tileGeometry";
